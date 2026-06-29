@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Gestão de Tarefas - Ryanair Premium Style</title>
+    <!-- Chart.js para gráficos premium -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome para ícones modernos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ryanair-blue: #0033A0;
+            --ryanair-blue-dark: #001F60;
+            --ryanair-blue-light: #1E56D4;
+            --ryanair-yellow: #FFD100;
+            --ryanair-yellow-hover: #E6BC00;
+            --bg-body: #F4F6FA;
+            --card-bg: #FFFFFF;
+            --text-main: #0A192F;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+            --success: #10B981;
+            --shadow: 0 10px 25px -5px rgba(0, 51, 160, 0.05), 0 8px 10px -6px rgba(0, 51, 160, 0.05);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* Layout Grid Principal */
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+        }
+
+        /* Header Global */
+        .header-dash {
+            grid-column: 1 / -1;
+            background: var(--ryanair-blue);
+            color: white;
+            padding: 24px 32px;
+            border-radius: var(--radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 8px;
+        }
+
+        .header-title h1 {
+            font-size: 24pt;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title h1 span {
+            color: var(--ryanair-yellow);
+        }
+
+        .header-title p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11pt;
+            margin-top: 4px;
+        }
+
+        .real-time-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .real-time-badge i {
+            color: var(--ryanair-yellow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Coluna Esquerda: Calendário e Avisos */
+        .sidebar-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 51, 160, 0.03);
+        }
+
+        .card-title {
+            font-size: 14pt;
+            font-weight: 700;
+            color: var(--ryanair-blue-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* Calendário Customizado */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-weight: 700;
+            color: var(--ryanair-blue);
+            font-size: 12pt;
+        }
+
+        .calendar-btn {
+            background: none;
+            border: none;
+            color: var(--ryanair-blue);
+            cursor: pointer;
+            font-size: 14pt;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .calendar-btn:hover {
+            background: rgba(0, 51, 160, 0.05);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .weekday {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 9pt;
+            padding-bottom: 8px;
+        }
+
+        .calendar-day {
+            padding: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 10pt;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .calendar-day:hover:not(.empty) {
+            background: rgba(0, 51, 160, 0.05);
+            color: var(--ryanair-blue);
+        }
+
+        .calendar-day.active {
+            background: var(--ryanair-blue) !important;
+            color: white !important;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0, 51, 160, 0.2);
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--ryanair-yellow);
+            color: var(--ryanair-blue-dark);
+            font-weight: 700;
+        }
+
+        .calendar-day.empty {
+            cursor: default;
+        }
+
+        /* Avisos Mensais */
+        .alert-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 209, 0, 0.08);
+            border-left: 4px solid var(--ryanair-yellow);
+            margin-bottom: 12px;
+            font-size: 10pt;
+        }
+
+        .alert-item i {
+            color: var(--ryanair-blue-dark);
+            margin-top: 2px;
+        }
+
+        .alert-item div h4 {
+            font-weight: 700;
+            color: var(--ryanair-blue-dark);
+        }
+
+        /* Coluna Direita: KPIs, Gráficos e Tabelas */
+        .main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Bloco de KPIs */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--ryanair-blue);
+        }
+
+        .kpi-card.accent::before {
+            background: var(--ryanair-yellow);
+        }
+
+        .kpi-info h3 {
+            font-size: 10pt;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-info p {
+            font-size: 22pt;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 4px;
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(0, 51, 160, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16pt;
+            color: var(--ryanair-blue);
+        }
+
+        .kpi-card.accent .kpi-icon {
+            background: rgba(255, 209, 0, 0.15);
+            color: var(--ryanair-blue-dark);
+        }
+
+        /* Seção de Gráficos */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        /* Seção de Tabelas de Tarefas */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .task-input, .task-select {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 10pt;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .task-input { flex: 1; }
+        .task-input:focus, .task-select:focus { border-color: var(--ryanair-blue); }
+
+        .btn-add {
+            background: var(--ryanair-blue);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-add:hover { background: var(--ryanair-blue-dark); }
+
+        /* Estilização das Tabelas Premium */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 10pt;
+        }
+
+        .task-table th {
+            padding: 12px;
+            background: #F8FAFC;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .task-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .task-table tr:hover {
+            background: rgba(0, 51, 160, 0.01);
+        }
+
+        /* Custom Checkbox */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            padding-left: 28px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #E2E8F0;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #CBD5E1;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--success);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .task-text {
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .task-row.completed .task-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .badge-responsible {
+            background: rgba(0, 51, 160, 0.08);
+            color: var(--ryanair-blue-dark);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 8.5pt;
+            display: inline-block;
+        }
+
+        .timestamp-box {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .timestamp-box i {
+            color: var(--success);
+        }
+
+        /* Seção de Insights Automatizados */
+        .insights-box {
+            background: linear-gradient(135deg, var(--ryanair-blue-dark) 0%, var(--ryanair-blue) 100%);
+            color: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .insights-box h3 {
+            color: var(--ryanair-yellow);
+            font-size: 13pt;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insights-content {
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+
+        .btn-delete-task {
+            background: none;
+            border: none;
+            color: #EF4444;
+            cursor: pointer;
+            font-size: 10pt;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+
+        .btn-delete-task:hover {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    
+    <!-- HEADER -->
+    <header class="header-dash">
+        <div class="header-title">
+            <h1><i class="fa-solid : plane-departure"></i> RYANAIR <span>TASKPIT</span></h1>
+            <p>Plataforma Interna de Monitorização e Operação de Tarefas Diárias</p>
+        </div>
+        <div class="real-time-badge">
+            <i class="fa-solid : circle-dot"></i> Simulação em Tempo Real (Multi-User Ready)
+        </div>
+    </header>
+
+    <!-- COLUNA ESQUERDA -->
+    <div class="sidebar-column">
+        
+        <!-- CARD CALENDÁRIO -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-regular : calendar-days"></i> Calendário Operacional
+            </div>
+            <div class="calendar-header">
+                <button class="calendar-btn" id="prevMonthBtn"><i class="fa-solid : chevron-left"></i></button>
+                <span id="calendarMonthYear">Junho 2026</span>
+                <button class="calendar-btn" id="nextMonthBtn"><i class="fa-solid : chevron-right"></i></button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+        <!-- CARD AVISOS MENSAIS -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid : bell"></i> Obrigações e Alertas Mensais
+            </div>
+            <div id="monthlyAlertsContainer">
+                <!-- Alertas automáticos -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- COLUNA DIREITA -->
+    <div class="main-column">
+        
+        <!-- LINHA DE KPIS -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h3>Data Selecionada</h3>
+                    <p id="kpiSelectedDate">--/--/----</p>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid : calendar-day"></i></div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-info">
+                    <h3>Conclusão Total</h3>
+                    <p id="kpiCompletionRate">0%</p>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid : chart-pie"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h3>Tarefas Concluídas</h3>
+                    <p id="kpiCompletedCount">0/0</p>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid : check-double"></i></div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-info">
+                    <h3>Líder Operacional</h3>
+                    <p id="kpiLeader">Nenhum</p>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid : crown"></i></div>
+            </div>
+        </div>
+
+        <!-- LINHA DE GRÁFICOS -->
+        <div class="charts-row">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid : chart-line"></i> Produtividade Semanal Histórica</div>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid : chart-donut"></i> Mix de Trabalho</div>
+                <div class="chart-container">
+                    <canvas id="mixChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUTO DAS TABELAS DE TAREFAS -->
+        <div class="tasks-grid">
+            
+            <!-- LISTA 1: TAREFAS ROTINEIRAS -->
+            <div class="card">
+                <div class="card-title"><i class="fa-solid : arrows-spin"></i> 1. Tarefas Rotineiras (Diárias)</div>
+                <div class="task-actions">
+                    <input type="text" id="routineInput" class="task-input" placeholder="Nova tarefa rotineira...">
+                    <select id="routineResponsible" class="task-select">
+                        <option value="Ana Silva">Ana S.</option>
+                        <option value="Pedro Costa">Pedro C.</option>
+                        <option value="Rita Santos">Rita S.</option>
+                        <option value="Carlos Reis">Carlos R.</option>
+                    </select>
+                    <button class="btn-add" onclick="addTask('routine')"><i class="fa-solid : plus"></i></button>
+                </div>
+                <div class="table-responsive">
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">Status</th>
+                                <th style="width: 45%;">Tarefa</th>
+                                <th>Responsável</th>
+                                <th>Data/Hora Conclusão</th>
+                                <th style="width: 30px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="routineTableBody">
+                            <!-- Injetado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LISTA 2: TAREFAS PONTUAIS -->
+            <div class="card">
+                <div class="card-title"><i class="fa-solid : Initial : circle-exclamation"></i> 2. Tarefas Pontuais (Específicas)</div>
+                <div class="task-actions">
+                    <input type="text" id="punctualInput" class="task-input" placeholder="Nova tarefa pontual...">
+                    <select id="punctualResponsible" class="task-select">
+                        <option value="Ana Silva">Ana S.</option>
+                        <option value="Pedro Costa">Pedro C.</option>
+                        <option value="Rita Santos">Rita S.</option>
+                        <option value="Carlos Reis">Carlos R.</option>
+                    </select>
+                    <button class="btn-add" onclick="addTask('punctual')"><i class="fa-solid : plus"></i></button>
+                </div>
+                <div class="table-responsive">
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">Status</th>
+                                <th style="width: 45%;">Tarefa</th>
+                                <th>Responsável</th>
+                                <th>Data/Hora Conclusão</th>
+                                <th style="width: 30px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="punctualTableBody">
+                            <!-- Injetado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CARD DE INSIGHTS AUTOMÁTICOS -->
+        <div class="insights-box">
+            <h3><i class="fa-solid : lightbulb"></i> Smart Insights Automáticos</h3>
+            <div class="insights-content" id="insightsContent">
+                Selecione um dia ou atualize as tarefas para gerar os insights operacionais da equipa em tempo real.
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // --- MOTOR DE DADOS E PERSISTÊNCIA (Simulação LocalStorage) ---
+    // Isto garante que o que fizerem fica guardado imediatamente e suporta a lógica de datas anteriores.
+    
+    let currentDate = new Date();
+    let selectedDateStr = formatDateKey(currentDate);
+
+    // Estrutura base padrão para preencher automaticamente se o dia não tiver dados
+    const defaultRoutineTasks = [
+        { texto: "Verificação do checklist do plano de voo e tripulação", responsavel: "Ana Silva", concluida: false, timestamp: "" },
+        { texto: "Auditoria de segurança aos balcões de embarque", responsavel: "Pedro Costa", concluida: false, timestamp: "" },
+        { texto: "Sincronização dos relatórios de faturação diária", responsavel: "Rita Santos", concluida: false, timestamp: "" },
+        { texto: "Supervisão do handling e rotação de aeronaves", responsavel: "Carlos Reis", concluida: false, timestamp: "" }
+    ];
+
+    let dbData = JSON.parse(localStorage.getItem('ryanair_task_db')) || {
+        days: {}
+    };
+
+    // Inicializar os gráficos globalmente
+    let weeklyChartObj = null;
+    let mixChartObj = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initCalendar();
+        loadDateData(selectedDateStr);
+        renderAlerts();
+        initCharts();
+        updateDashboard();
+    });
+
+    function formatDateKey(date) {
+        let d = new Date(date);
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        let year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    function loadDateData(dateStr) {
+        if (!dbData.days[dateStr]) {
+            // Se o dia não existe, as rotineiras são criadas AUTOMATICAMENTE a partir do template padrão
+            dbData.days[dateStr] = {
+                routine: JSON.parse(JSON.stringify(defaultRoutineTasks)),
+                punctual: []
+            };
+            saveDB();
+        }
+    }
+
+    function saveDB() {
+        localStorage.setItem('ryanair_task_db', JSON.stringify(dbData));
+    }
+
+    // --- MOTOR DO CALENDÁRIO ---
+    const monthsPt = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const weekdaysPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+    function initCalendar() {
+        const grid = document.getElementById("calendarGrid");
+        const monthYearLabel = document.getElementById("calendarMonthYear");
+        grid.innerHTML = "";
+
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth();
+
+        monthYearLabel.innerText = `${monthsPt[month]} ${year}`;
+
+        // Dias da semana cabeçalho
+        weekdaysPt.forEach(day => {
+            let div = document.createElement("div");
+            div.className = "weekday";
+            div.innerText = day;
+            grid.appendChild(div);
+        });
+
+        let firstDayIndex = new Date(year, month, 1).getDay();
+        let totalDays = new Date(year, month + 1, 0).getDate();
+
+        // Espaços vazios do mês anterior
+        for (let i = 0; i < firstDayIndex; i++) {
+            let div = document.createElement("div");
+            div.className = "calendar-day empty";
+            grid.appendChild(div);
+        }
+
+        // Dias do mês atual
+        let todayStr = formatDateKey(new Date());
+        for (let day = 1; day <= totalDays; day++) {
+            let div = document.createElement("div");
+            div.className = "calendar-day";
+            div.innerText = day;
+
+            let thisDateStr = formatDateKey(new Date(year, month, day));
+            
+            if (thisDateStr === todayStr) div.classList.add("today");
+            if (thisDateStr === selectedDateStr) div.classList.add("active");
+
+            div.onclick = () => {
+                document.querySelectorAll(".calendar-day").forEach(d => d.classList.remove("active"));
+                div.classList.add("active");
+                selectedDateStr = thisDateStr;
+                loadDateData(selectedDateStr);
+                updateDashboard();
+            };
+
+            grid.appendChild(div);
+        }
+    }
+
+    document.getElementById("prevMonthBtn").onclick = () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        initCalendar();
+    };
+    document.getElementById("nextMonthBtn").onclick = () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        initCalendar();
+    };
+
+    // --- ALERTAS MENSAIS FIXOS ---
+    function renderAlerts() {
+        const container = document.getElementById("monthlyAlertsContainer");
+        const alerts = [
+            { titulo: "Fecho Mensal de Escalas", desc: "Verificar e submeter até ao dia 28 de cada mês.", icone: "fa-plane" },
+            { titulo: "Auditoria de Segurança Trimestral", desc: "Revisão obrigatória de procedimentos de solo.", icone: "fa-shield-halved" },
+            { titulo: "Manutenção de Infraestruturas", desc: "Janela técnica agendada para a primeira semana do mês.", icone: "fa-wrench" }
+        ];
+
+        container.innerHTML = alerts.map(a => `
+            <div class="alert-item">
+                <i class="fa-solid ${a.icone}"></i>
+                <div>
+                    <h4>${a.titulo}</h4>
+                    <p>${a.desc}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // --- CONTROLO DE TAREFAS ---
+    function addTask(type) {
+        let input = document.getElementById(`${type}Input`);
+        let respSelect = document.getElementById(`${type}Responsible`);
+        
+        if (!input.value.trim()) return;
+
+        let newTask = {
+            texto: input.value.trim(),
+            responsavel: respSelect.value,
+            concluida: false,
+            timestamp: ""
+        };
+
+        dbData.days[selectedDateStr][type].push(newTask);
+        saveDB();
+        input.value = "";
+        updateDashboard();
+    }
+
+    function deleteTask(type, index) {
+        dbData.days[selectedDateStr][type].splice(index, 1);
+        saveDB();
+        updateDashboard();
+    }
+
+    function toggleTask(type, index) {
+        let task = dbData.days[selectedDateStr][type][index];
+        task.concluida = !task.concluida;
+        
+        if (task.concluida) {
+            let now = new Date();
+            let dateFormatted = now.toLocaleDateString('pt-PT');
+            let timeFormatted = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+            task.timestamp = `${dateFormatted} às ${timeFormatted}`;
+        } else {
+            task.timestamp = "";
+        }
+
+        saveDB();
+        updateDashboard();
+    }
+
+    // --- ATUALIZAÇÃO GERAL DO DASHBOARD ---
+    function updateDashboard() {
+        let dayData = dbData.days[selectedDateStr];
+        
+        // Atualizar KPI Data
+        let splitDate = selectedDateStr.split('-');
+        document.getElementById("kpiSelectedDate").innerText = `${splitDate[2]}/${splitDate[1]}/${splitDate[0]}`;
+
+        // Render Tables
+        renderTable('routine', dayData.routine);
+        renderTable('punctual', dayData.punctual);
+
+        // Calcular Métricas
+        let total = dayData.routine.length + dayData.punctual.length;
+        let completed = dayData.routine.filter(t => t.concluida).length + dayData.punctual.filter(t => t.concluida).length;
+        let rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        document.getElementById("kpiCompletedCount").innerText = `${completed}/${total}`;
+        document.getElementById("kpiCompletionRate").innerText = `${rate}%`;
+
+        // Calcular Líder do Dia (Quem completou mais tarefas)
+        let respMap = {};
+        [...dayData.routine, ...dayData.punctual].forEach(t => {
+            if (t.concluida) {
+                respMap[t.responsavel] = (respMap[t.responsavel] || 0) + 1;
+            }
+        });
+        let leader = "Nenhum";
+        let maxDone = 0;
+        for (let name in respMap) {
+            if (respMap[name] > maxDone) {
+                maxDone = respMap[name];
+                leader = name.split(' ')[0]; // Só o primeiro nome para caber no card
+            }
+        }
+        document.getElementById("kpiLeader").innerText = leader + (maxDone > 0 ? ` (${maxDone})` : "");
+
+        // Atualizar Gráficos e Insights
+        updateCharts(dayData, rate);
+        updateInsights(dayData, rate, leader, maxDone);
+    }
+
+    function renderTable(type, list) {
+        const tbody = document.getElementById(`${type}TableBody`);
+        tbody.innerHTML = "";
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma tarefa registada para este dia.</td></tr>`;
+            return;
+        }
+
+        list.forEach((task, index) => {
+            let tr = document.createElement("tr");
+            tr.className = `task-row ${task.concluida ? 'completed' : ''}`;
+
+            tr.innerHTML = `
+                <td>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${task.concluida ? 'checked' : ''} onchange="toggleTask('${type}', ${index})">
+                        <span class="checkmark"></span>
+                    </label>
+                </td>
+                <td><span class="task-text">${task.texto}</span></td>
+                <td><span class="badge-responsible">${task.responsavel}</span></td>
+                <td>
+                    <div class="timestamp-box">
+                        ${task.concluida ? `<span><i class="fa-solid : circle-check"></i> Concluído</span><span>${task.timestamp}</span>` : '<span style="color:#94A3B8;">Pendente</span>'}
+                    </div>
+                </td>
+                <td>
+                    <button class="btn-delete-task" onclick="deleteTask('${type}', ${index})"><i class="fa-solid : trash-can"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- GRÁFICOS (CHART.JS) ---
+    function initCharts() {
+        // Gráfico Semanal (Mock de histórico estável com base nos dias circundantes)
+        const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
+        weeklyChartObj = new Chart(ctxWeekly, {
+            type: 'line',
+            data: {
+                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Eficiência Operacional (%)',
+                    data: [85, 92, 78, 88, 95, 70, 82],
+                    borderColor: '#0033A0',
+                    backgroundColor: 'rgba(0, 51, 160, 0.05)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 0, max: 100 } }
+            }
+        });
+
+        // Gráfico de Mix (Donut)
+        const ctxMix = document.getElementById('mixChart').getContext('2d');
+        mixChartObj = new Chart(ctxMix, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rotineiras', 'Pontuais'],
+                datasets: [{
+                    data: [4, 2],
+                    backgroundColor: ['#0033A0', '#FFD100'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    function updateCharts(dayData, currentRate) {
+        if (!weeklyChartObj || !mixChartObj) return;
+
+        // Atualiza dinamicamente o mix com base no número de tarefas atuais
+        let routineCount = dayData.routine.length;
+        let punctualCount = dayData.punctual.length;
+        
+        mixChartObj.data.datasets[0].data = [routineCount, punctualCount];
+        mixChartObj.update();
+
+        // Faz com que o dia atual do gráfico de linhas simule refletir o progresso do dia atual
+        weeklyChartObj.data.datasets[0].data[2] = currentRate; // Muda ficticiamente a quarta-feira de exemplo para ver a reatividade
+        weeklyChartObj.update();
+    }
+
+    // --- MOTOR DE INSIGHTS AUTOMÁTICOS ---
+    function updateInsights(dayData, rate, leader, maxDone) {
+        const box = document.getElementById("insightsContent");
+        
+        let total = dayData.routine.length + dayData.punctual.length;
+        let routinePending = dayData.routine.filter(t => !t.concluida).length;
+        let punctualPending = dayData.punctual.filter(t => !t.concluida).length;
+
+        if (total === 0) {
+            box.innerHTML = "Não existem tarefas agendadas para esta data. Adicione novas tarefas para iniciar a monitorização inteligente.";
+            return;
+        }
+
+        let html = `Atualmente, a taxa de sucesso da equipa está em <strong>${rate}%</strong>. `;
+        
+        if (rate === 100) {
+            html += `🎉 <strong>Desempenho Excelente!</strong> Todas as operações foram asseguradas com sucesso dentro do horário previsto. Excelente liderança operacional de <strong>${leader}</strong> hoje.`;
+        } else if (rate >= 75) {
+            html += `📈 <strong>Operação Avançada:</strong> A maioria das obrigações críticas já está em conformidade. Restam apenas ${routinePending + punctualPending} tarefas por fechar. Mantenham o foco!`;
+        } else if (rate > 0) {
+            html += `⚡ <strong>Ritmo Ativo:</strong> As tarefas estão a ser despachadas. Neste momento, <strong>${leader}</strong> destaca-se com ${maxDone} conclusões. Há ainda um foco necessário em ${routinePending} rotinas do dia.`;
+        } else {
+            html += `💤 <strong>Início de Turno / Dia Pendente:</strong> Nenhuma tarefa foi concluída para esta data até ao momento. Certifique-se de que a equipa iniciou a verificação dos sistemas.`;
+        }
+
+        if (punctualPending > 2) {
+            html += `<br><br>⚠️ <strong>Aviso de Sobrecarga:</strong> Há uma acumulação de tarefas pontuais (${punctualPending} por fazer). Recomenda-se redistribuir responsabilidades para evitar atrasos na rotação diária.`;
+        }
+
+        box.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
