@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plataforma de Gestão de Tarefas - Ryanair Premium Style</title>
-    <!-- Chart.js para gráficos premium -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome para ícones modernos -->
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -504,111 +506,99 @@
         .btn-delete-task:hover {
             opacity: 1;
         }
-
     </style>
 </head>
 <body>
 
 <div class="dashboard-container">
     
-    <!-- HEADER -->
     <header class="header-dash">
         <div class="header-title">
-            <h1><i class="fa-solid : plane-departure"></i> RYANAIR <span>TASKPIT</span></h1>
+            <h1><i class="fa-solid fa-plane-departure"></i> RYANAIR <span>TASKPIT</span></h1>
             <p>Plataforma Interna de Monitorização e Operação de Tarefas Diárias</p>
         </div>
         <div class="real-time-badge">
-            <i class="fa-solid : circle-dot"></i> Simulação em Tempo Real (Multi-User Ready)
+            <i class="fa-solid fa-circle-dot"></i> Live Firebase Sync (Multi-User)
         </div>
     </header>
 
-    <!-- COLUNA ESQUERDA -->
     <div class="sidebar-column">
         
-        <!-- CARD CALENDÁRIO -->
         <div class="card">
             <div class="card-title">
-                <i class="fa-regular : calendar-days"></i> Calendário Operacional
+                <i class="fa-regular fa-calendar-days"></i> Calendário Operacional
             </div>
             <div class="calendar-header">
-                <button class="calendar-btn" id="prevMonthBtn"><i class="fa-solid : chevron-left"></i></button>
-                <span id="calendarMonthYear">Junho 2026</span>
-                <button class="calendar-btn" id="nextMonthBtn"><i class="fa-solid : chevron-right"></i></button>
+                <button class="calendar-btn" id="prevMonthBtn"><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="calendarMonthYear">...</span>
+                <button class="calendar-btn" id="nextMonthBtn"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
             <div class="calendar-grid" id="calendarGrid">
-                <!-- Preenchido via JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- CARD AVISOS MENSAIS -->
         <div class="card">
             <div class="card-title">
-                <i class="fa-solid : bell"></i> Obrigações e Alertas Mensais
+                <i class="fa-solid fa-bell"></i> Obrigações e Alertas Mensais
             </div>
             <div id="monthlyAlertsContainer">
-                <!-- Alertas automáticos -->
-            </div>
+                </div>
         </div>
 
     </div>
 
-    <!-- COLUNA DIREITA -->
     <div class="main-column">
         
-        <!-- LINHA DE KPIS -->
         <div class="kpi-row">
             <div class="kpi-card">
                 <div class="kpi-info">
                     <h3>Data Selecionada</h3>
                     <p id="kpiSelectedDate">--/--/----</p>
                 </div>
-                <div class="kpi-icon"><i class="fa-solid : calendar-day"></i></div>
+                <div class="kpi-icon"><i class="fa-solid fa-calendar-day"></i></div>
             </div>
             <div class="kpi-card accent">
                 <div class="kpi-info">
                     <h3>Conclusão Total</h3>
                     <p id="kpiCompletionRate">0%</p>
                 </div>
-                <div class="kpi-icon"><i class="fa-solid : chart-pie"></i></div>
+                <div class="kpi-icon"><i class="fa-solid fa-chart-pie"></i></div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-info">
                     <h3>Tarefas Concluídas</h3>
                     <p id="kpiCompletedCount">0/0</p>
                 </div>
-                <div class="kpi-icon"><i class="fa-solid : check-double"></i></div>
+                <div class="kpi-icon"><i class="fa-solid fa-check-double"></i></div>
             </div>
             <div class="kpi-card accent">
                 <div class="kpi-info">
                     <h3>Líder Operacional</h3>
                     <p id="kpiLeader">Nenhum</p>
                 </div>
-                <div class="kpi-icon"><i class="fa-solid : crown"></i></div>
+                <div class="kpi-icon"><i class="fa-solid fa-crown"></i></div>
             </div>
         </div>
 
-        <!-- LINHA DE GRÁFICOS -->
         <div class="charts-row">
             <div class="card">
-                <div class="card-title"><i class="fa-solid : chart-line"></i> Produtividade Semanal Histórica</div>
+                <div class="card-title"><i class="fa-solid fa-chart-line"></i> Produtividade Semanal Histórica</div>
                 <div class="chart-container">
                     <canvas id="weeklyChart"></canvas>
                 </div>
             </div>
             <div class="card">
-                <div class="card-title"><i class="fa-solid : chart-donut"></i> Mix de Trabalho</div>
+                <div class="card-title"><i class="fa-solid fa-chart-pie"></i> Mix de Trabalho</div>
                 <div class="chart-container">
                     <canvas id="mixChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- PRODUTO DAS TABELAS DE TAREFAS -->
         <div class="tasks-grid">
             
-            <!-- LISTA 1: TAREFAS ROTINEIRAS -->
             <div class="card">
-                <div class="card-title"><i class="fa-solid : arrows-spin"></i> 1. Tarefas Rotineiras (Diárias)</div>
+                <div class="card-title"><i class="fa-solid fa-arrows-spin"></i> 1. Tarefas Rotineiras (Diárias)</div>
                 <div class="task-actions">
                     <input type="text" id="routineInput" class="task-input" placeholder="Nova tarefa rotineira...">
                     <select id="routineResponsible" class="task-select">
@@ -617,7 +607,7 @@
                         <option value="Rita Santos">Rita S.</option>
                         <option value="Carlos Reis">Carlos R.</option>
                     </select>
-                    <button class="btn-add" onclick="addTask('routine')"><i class="fa-solid : plus"></i></button>
+                    <button class="btn-add" onclick="addTask('routine')"><i class="fa-solid fa-plus"></i></button>
                 </div>
                 <div class="table-responsive">
                     <table class="task-table">
@@ -631,15 +621,13 @@
                             </tr>
                         </thead>
                         <tbody id="routineTableBody">
-                            <!-- Injetado por JS -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- LISTA 2: TAREFAS PONTUAIS -->
             <div class="card">
-                <div class="card-title"><i class="fa-solid : Initial : circle-exclamation"></i> 2. Tarefas Pontuais (Específicas)</div>
+                <div class="card-title"><i class="fa-solid fa-circle-exclamation"></i> 2. Tarefas Pontuais (Específicas)</div>
                 <div class="task-actions">
                     <input type="text" id="punctualInput" class="task-input" placeholder="Nova tarefa pontual...">
                     <select id="punctualResponsible" class="task-select">
@@ -648,7 +636,7 @@
                         <option value="Rita Santos">Rita S.</option>
                         <option value="Carlos Reis">Carlos R.</option>
                     </select>
-                    <button class="btn-add" onclick="addTask('punctual')"><i class="fa-solid : plus"></i></button>
+                    <button class="btn-add" onclick="addTask('punctual')"><i class="fa-solid fa-plus"></i></button>
                 </div>
                 <div class="table-responsive">
                     <table class="task-table">
@@ -662,17 +650,15 @@
                             </tr>
                         </thead>
                         <tbody id="punctualTableBody">
-                            <!-- Injetado por JS -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
 
         </div>
 
-        <!-- CARD DE INSIGHTS AUTOMÁTICOS -->
         <div class="insights-box">
-            <h3><i class="fa-solid : lightbulb"></i> Smart Insights Automáticos</h3>
+            <h3><i class="fa-solid fa-lightbulb"></i> Smart Insights Automáticos</h3>
             <div class="insights-content" id="insightsContent">
                 Selecione um dia ou atualize as tarefas para gerar os insights operacionais da equipa em tempo real.
             </div>
@@ -683,13 +669,27 @@
 </div>
 
 <script>
-    // --- MOTOR DE DADOS E PERSISTÊNCIA (Simulação LocalStorage) ---
-    // Isto garante que o que fizerem fica guardado imediatamente e suporta a lógica de datas anteriores.
-    
+    // --- 1. CONFIGURAÇÃO DO FIREBASE ---
+    // Credenciais inseridas corretamente!
+    const firebaseConfig = {
+        apiKey: "AIzaSyCTFtmMVg9EPcCnUpxdJ7twLiCPnnpSL1k",
+        authDomain: "ryanair-dashboard.firebaseapp.com",
+        projectId: "ryanair-dashboard",
+        storageBucket: "ryanair-dashboard.firebasestorage.app",
+        messagingSenderId: "947623101872",
+        appId: "1:947623101872:web:5e110de6c1a970e508c275"
+    };
+
+    // Inicializar o Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- 2. VARIÁVEIS GLOBAIS ---
     let currentDate = new Date();
     let selectedDateStr = formatDateKey(currentDate);
+    let dayData = { routine: [], punctual: [] }; 
+    let unsubscribe = null; 
 
-    // Estrutura base padrão para preencher automaticamente se o dia não tiver dados
     const defaultRoutineTasks = [
         { texto: "Verificação do checklist do plano de voo e tripulação", responsavel: "Ana Silva", concluida: false, timestamp: "" },
         { texto: "Auditoria de segurança aos balcões de embarque", responsavel: "Pedro Costa", concluida: false, timestamp: "" },
@@ -697,20 +697,14 @@
         { texto: "Supervisão do handling e rotação de aeronaves", responsavel: "Carlos Reis", concluida: false, timestamp: "" }
     ];
 
-    let dbData = JSON.parse(localStorage.getItem('ryanair_task_db')) || {
-        days: {}
-    };
-
-    // Inicializar os gráficos globalmente
     let weeklyChartObj = null;
     let mixChartObj = null;
 
     document.addEventListener("DOMContentLoaded", () => {
         initCalendar();
-        loadDateData(selectedDateStr);
-        renderAlerts();
         initCharts();
-        updateDashboard();
+        loadDateData(selectedDateStr); 
+        renderAlerts();
     });
 
     function formatDateKey(date) {
@@ -718,29 +712,39 @@
         let month = '' + (d.getMonth() + 1);
         let day = '' + d.getDate();
         let year = d.getFullYear();
-
         if (month.length < 2) month = '0' + month;
         if (day.length < 2) day = '0' + day;
-
         return [year, month, day].join('-');
     }
 
+    // --- 3. MOTOR REAL-TIME (FIREBASE) ---
     function loadDateData(dateStr) {
-        if (!dbData.days[dateStr]) {
-            // Se o dia não existe, as rotineiras são criadas AUTOMATICAMENTE a partir do template padrão
-            dbData.days[dateStr] = {
-                routine: JSON.parse(JSON.stringify(defaultRoutineTasks)),
-                punctual: []
-            };
-            saveDB();
+        if (unsubscribe) {
+            unsubscribe();
         }
+
+        const docRef = db.collection('daily_tasks').doc(dateStr);
+
+        unsubscribe = docRef.onSnapshot((doc) => {
+            if (doc.exists) {
+                dayData = doc.data();
+                updateDashboard();
+            } else {
+                const newDayData = {
+                    routine: JSON.parse(JSON.stringify(defaultRoutineTasks)),
+                    punctual: []
+                };
+                docRef.set(newDayData); 
+            }
+        });
     }
 
     function saveDB() {
-        localStorage.setItem('ryanair_task_db', JSON.stringify(dbData));
+        db.collection('daily_tasks').doc(selectedDateStr).set(dayData)
+          .catch((error) => console.error("Erro ao guardar na nuvem:", error));
     }
 
-    // --- MOTOR DO CALENDÁRIO ---
+    // --- 4. MOTOR DO CALENDÁRIO ---
     const monthsPt = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const weekdaysPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -754,7 +758,6 @@
 
         monthYearLabel.innerText = `${monthsPt[month]} ${year}`;
 
-        // Dias da semana cabeçalho
         weekdaysPt.forEach(day => {
             let div = document.createElement("div");
             div.className = "weekday";
@@ -765,14 +768,12 @@
         let firstDayIndex = new Date(year, month, 1).getDay();
         let totalDays = new Date(year, month + 1, 0).getDate();
 
-        // Espaços vazios do mês anterior
         for (let i = 0; i < firstDayIndex; i++) {
             let div = document.createElement("div");
             div.className = "calendar-day empty";
             grid.appendChild(div);
         }
 
-        // Dias do mês atual
         let todayStr = formatDateKey(new Date());
         for (let day = 1; day <= totalDays; day++) {
             let div = document.createElement("div");
@@ -788,8 +789,7 @@
                 document.querySelectorAll(".calendar-day").forEach(d => d.classList.remove("active"));
                 div.classList.add("active");
                 selectedDateStr = thisDateStr;
-                loadDateData(selectedDateStr);
-                updateDashboard();
+                loadDateData(selectedDateStr); 
             };
 
             grid.appendChild(div);
@@ -805,7 +805,6 @@
         initCalendar();
     };
 
-    // --- ALERTAS MENSAIS FIXOS ---
     function renderAlerts() {
         const container = document.getElementById("monthlyAlertsContainer");
         const alerts = [
@@ -825,7 +824,7 @@
         `).join('');
     }
 
-    // --- CONTROLO DE TAREFAS ---
+    // --- 5. CONTROLO DE TAREFAS ---
     function addTask(type) {
         let input = document.getElementById(`${type}Input`);
         let respSelect = document.getElementById(`${type}Responsible`);
@@ -839,20 +838,18 @@
             timestamp: ""
         };
 
-        dbData.days[selectedDateStr][type].push(newTask);
-        saveDB();
+        dayData[type].push(newTask);
+        saveDB(); 
         input.value = "";
-        updateDashboard();
     }
 
     function deleteTask(type, index) {
-        dbData.days[selectedDateStr][type].splice(index, 1);
-        saveDB();
-        updateDashboard();
+        dayData[type].splice(index, 1);
+        saveDB(); 
     }
 
     function toggleTask(type, index) {
-        let task = dbData.days[selectedDateStr][type][index];
+        let task = dayData[type][index];
         task.concluida = !task.concluida;
         
         if (task.concluida) {
@@ -864,33 +861,29 @@
             task.timestamp = "";
         }
 
-        saveDB();
-        updateDashboard();
+        saveDB(); 
     }
 
-    // --- ATUALIZAÇÃO GERAL DO DASHBOARD ---
+    // --- 6. ATUALIZAÇÃO GERAL DO DASHBOARD ---
     function updateDashboard() {
-        let dayData = dbData.days[selectedDateStr];
-        
-        // Atualizar KPI Data
         let splitDate = selectedDateStr.split('-');
         document.getElementById("kpiSelectedDate").innerText = `${splitDate[2]}/${splitDate[1]}/${splitDate[0]}`;
 
-        // Render Tables
-        renderTable('routine', dayData.routine);
-        renderTable('punctual', dayData.punctual);
+        let routineTasks = dayData.routine || [];
+        let punctualTasks = dayData.punctual || [];
 
-        // Calcular Métricas
-        let total = dayData.routine.length + dayData.punctual.length;
-        let completed = dayData.routine.filter(t => t.concluida).length + dayData.punctual.filter(t => t.concluida).length;
+        renderTable('routine', routineTasks);
+        renderTable('punctual', punctualTasks);
+
+        let total = routineTasks.length + punctualTasks.length;
+        let completed = routineTasks.filter(t => t.concluida).length + punctualTasks.filter(t => t.concluida).length;
         let rate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
         document.getElementById("kpiCompletedCount").innerText = `${completed}/${total}`;
         document.getElementById("kpiCompletionRate").innerText = `${rate}%`;
 
-        // Calcular Líder do Dia (Quem completou mais tarefas)
         let respMap = {};
-        [...dayData.routine, ...dayData.punctual].forEach(t => {
+        [...routineTasks, ...punctualTasks].forEach(t => {
             if (t.concluida) {
                 respMap[t.responsavel] = (respMap[t.responsavel] || 0) + 1;
             }
@@ -900,14 +893,13 @@
         for (let name in respMap) {
             if (respMap[name] > maxDone) {
                 maxDone = respMap[name];
-                leader = name.split(' ')[0]; // Só o primeiro nome para caber no card
+                leader = name.split(' ')[0]; 
             }
         }
         document.getElementById("kpiLeader").innerText = leader + (maxDone > 0 ? ` (${maxDone})` : "");
 
-        // Atualizar Gráficos e Insights
-        updateCharts(dayData, rate);
-        updateInsights(dayData, rate, leader, maxDone);
+        updateCharts(routineTasks.length, punctualTasks.length, rate);
+        updateInsights(routineTasks, punctualTasks, rate, leader, maxDone);
     }
 
     function renderTable(type, list) {
@@ -934,11 +926,11 @@
                 <td><span class="badge-responsible">${task.responsavel}</span></td>
                 <td>
                     <div class="timestamp-box">
-                        ${task.concluida ? `<span><i class="fa-solid : circle-check"></i> Concluído</span><span>${task.timestamp}</span>` : '<span style="color:#94A3B8;">Pendente</span>'}
+                        ${task.concluida ? `<span><i class="fa-solid fa-circle-check"></i> Concluído</span><span>${task.timestamp}</span>` : '<span style="color:#94A3B8;">Pendente</span>'}
                     </div>
                 </td>
                 <td>
-                    <button class="btn-delete-task" onclick="deleteTask('${type}', ${index})"><i class="fa-solid : trash-can"></i></button>
+                    <button class="btn-delete-task" onclick="deleteTask('${type}', ${index})"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -947,7 +939,6 @@
 
     // --- GRÁFICOS (CHART.JS) ---
     function initCharts() {
-        // Gráfico Semanal (Mock de histórico estável com base nos dias circundantes)
         const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
         weeklyChartObj = new Chart(ctxWeekly, {
             type: 'line',
@@ -971,7 +962,6 @@
             }
         });
 
-        // Gráfico de Mix (Donut)
         const ctxMix = document.getElementById('mixChart').getContext('2d');
         mixChartObj = new Chart(ctxMix, {
             type: 'doughnut',
@@ -991,28 +981,21 @@
         });
     }
 
-    function updateCharts(dayData, currentRate) {
+    function updateCharts(routineCount, punctualCount, currentRate) {
         if (!weeklyChartObj || !mixChartObj) return;
-
-        // Atualiza dinamicamente o mix com base no número de tarefas atuais
-        let routineCount = dayData.routine.length;
-        let punctualCount = dayData.punctual.length;
-        
         mixChartObj.data.datasets[0].data = [routineCount, punctualCount];
         mixChartObj.update();
-
-        // Faz com que o dia atual do gráfico de linhas simule refletir o progresso do dia atual
-        weeklyChartObj.data.datasets[0].data[2] = currentRate; // Muda ficticiamente a quarta-feira de exemplo para ver a reatividade
+        weeklyChartObj.data.datasets[0].data[2] = currentRate; 
         weeklyChartObj.update();
     }
 
     // --- MOTOR DE INSIGHTS AUTOMÁTICOS ---
-    function updateInsights(dayData, rate, leader, maxDone) {
+    function updateInsights(routineTasks, punctualTasks, rate, leader, maxDone) {
         const box = document.getElementById("insightsContent");
         
-        let total = dayData.routine.length + dayData.punctual.length;
-        let routinePending = dayData.routine.filter(t => !t.concluida).length;
-        let punctualPending = dayData.punctual.filter(t => !t.concluida).length;
+        let total = routineTasks.length + punctualTasks.length;
+        let routinePending = routineTasks.filter(t => !t.concluida).length;
+        let punctualPending = punctualTasks.filter(t => !t.concluida).length;
 
         if (total === 0) {
             box.innerHTML = "Não existem tarefas agendadas para esta data. Adicione novas tarefas para iniciar a monitorização inteligente.";
