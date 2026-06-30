@@ -23,6 +23,8 @@
             --text-muted: #64748B;
             --border-color: #E2E8F0;
             --success: #10B981;
+            --danger: #EF4444;
+            --warning-orange: #F97316;
             --shadow: 0 10px 25px -5px rgba(0, 51, 160, 0.05), 0 8px 10px -6px rgba(0, 51, 160, 0.05);
             --radius: 16px;
         }
@@ -39,9 +41,9 @@
             color: var(--text-main);
             padding: 24px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Layout Grid Principal */
         .dashboard-container {
             max-width: 1600px;
             margin: 0 auto;
@@ -50,12 +52,11 @@
             gap: 24px;
         }
 
-        /* Header Global */
         .header-dash {
             grid-column: 1 / -1;
-            background: var(--ryanair-blue);
+            background: var(--ryanair-blue-dark);
             color: white;
-            padding: 24px 32px;
+            padding: 20px 32px;
             border-radius: var(--radius);
             display: flex;
             justify-content: space-between;
@@ -64,448 +65,95 @@
             margin-bottom: 8px;
         }
 
-        .header-title h1 {
-            font-size: 24pt;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .header-content-left { display: flex; align-items: center; gap: 24px; }
+        .header-logo { height: 55px; object-fit: contain; }
+        .header-title { display: flex; flex-direction: column; justify-content: center; }
+        .header-title h1 { font-size: 22pt; font-weight: 700; letter-spacing: 0.5px; color: white; margin: 0; text-transform: uppercase; }
+        .header-title h1 span { color: var(--ryanair-yellow); }
+        .header-title p { color: white; font-size: 13pt; margin-top: 4px; font-weight: 400; letter-spacing: 0.2px; }
 
-        .header-title h1 span {
-            color: var(--ryanair-yellow);
-        }
+        .real-time-badge { background: rgba(255, 255, 255, 0.15); padding: 10px 18px; border-radius: 30px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; gap: 8px; }
+        .real-time-badge i { color: var(--ryanair-yellow); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        .header-title p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 11pt;
-            margin-top: 4px;
-        }
+        .sidebar-column, .main-column { display: flex; flex-direction: column; gap: 24px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); border: 1px solid rgba(0, 51, 160, 0.03); display: flex; flex-direction: column; }
+        .card-title { font-size: 14pt; font-weight: 700; color: var(--ryanair-blue-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
 
-        .real-time-badge {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px 18px;
-            border-radius: 30px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; color: var(--ryanair-blue); font-size: 12pt; }
+        .calendar-btn { background: none; border: none; color: var(--ryanair-blue); cursor: pointer; font-size: 14pt; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
+        .calendar-btn:hover { background: rgba(0, 51, 160, 0.05); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+        .weekday { font-weight: 600; color: var(--text-muted); font-size: 9pt; padding-bottom: 8px; }
+        .calendar-day { padding: 10px 0; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 10pt; transition: all 0.2s; user-select: none; }
+        .calendar-day:hover:not(.empty) { background: rgba(0, 51, 160, 0.05); color: var(--ryanair-blue); }
+        .calendar-day.active { background: var(--ryanair-blue) !important; color: white !important; font-weight: 700; box-shadow: 0 4px 10px rgba(0, 51, 160, 0.2); }
+        .calendar-day.today { border: 2px solid var(--ryanair-yellow); color: var(--ryanair-blue-dark); font-weight: 700; }
+        .calendar-day.empty { cursor: default; }
 
-        .real-time-badge i {
-            color: var(--ryanair-yellow);
-            animation: pulse 2s infinite;
-        }
+        .daily-alert-box { display: flex; gap: 14px; padding: 16px; border-radius: 12px; margin-bottom: 12px; font-size: 10.5pt; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
-        }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .alert-item { display: flex; gap: 12px; padding: 12px; border-radius: 8px; background: rgba(255, 209, 0, 0.08); border-left: 4px solid var(--ryanair-yellow); margin-bottom: 12px; font-size: 10pt; }
+        .alert-item i { color: var(--ryanair-blue-dark); margin-top: 2px; }
+        .alert-item div h4 { font-weight: 700; color: var(--ryanair-blue-dark); margin-bottom: 4px; }
 
-        /* Coluna Esquerda: Calendário e Avisos */
-        .sidebar-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+        .pending-item { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 8px; background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); margin-bottom: 12px; font-size: 10pt; }
+        .pending-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--danger); }
+        .pending-reason { color: var(--text-main); font-style: italic; background: white; padding: 6px; border-radius: 4px; border: 1px dashed var(--danger); }
+        .pending-meta { font-size: 8.5pt; color: var(--text-muted); display: flex; gap: 10px; }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0, 51, 160, 0.03);
-        }
+        .chart-container { position: relative; height: 220px; width: 100%; margin: auto; }
 
-        .card-title {
-            font-size: 14pt;
-            font-weight: 700;
-            color: var(--ryanair-blue-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        /* Calendário Customizado */
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            font-weight: 700;
-            color: var(--ryanair-blue);
-            font-size: 12pt;
-        }
-
-        .calendar-btn {
-            background: none;
-            border: none;
-            color: var(--ryanair-blue);
-            cursor: pointer;
-            font-size: 14pt;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .calendar-btn:hover {
-            background: rgba(0, 51, 160, 0.05);
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            text-align: center;
-        }
-
-        .weekday {
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 9pt;
-            padding-bottom: 8px;
-        }
-
-        .calendar-day {
-            padding: 10px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 10pt;
-            transition: all 0.2s;
-            user-select: none;
-        }
-
-        .calendar-day:hover:not(.empty) {
-            background: rgba(0, 51, 160, 0.05);
-            color: var(--ryanair-blue);
-        }
-
-        .calendar-day.active {
-            background: var(--ryanair-blue) !important;
-            color: white !important;
-            font-weight: 700;
-            box-shadow: 0 4px 10px rgba(0, 51, 160, 0.2);
-        }
-
-        .calendar-day.today {
-            border: 2px solid var(--ryanair-yellow);
-            color: var(--ryanair-blue-dark);
-            font-weight: 700;
-        }
-
-        .calendar-day.empty {
-            cursor: default;
-        }
-
-        /* Avisos Mensais */
-        .alert-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 8px;
-            background: rgba(255, 209, 0, 0.08);
-            border-left: 4px solid var(--ryanair-yellow);
-            margin-bottom: 12px;
-            font-size: 10pt;
-        }
-
-        .alert-item i {
-            color: var(--ryanair-blue-dark);
-            margin-top: 2px;
-        }
-
-        .alert-item div h4 {
-            font-weight: 700;
-            color: var(--ryanair-blue-dark);
-        }
-
-        /* Coluna Direita: KPIs, Gráficos e Tabelas */
-        .main-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        /* Bloco de KPIs */
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
-
-        .kpi-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: var(--ryanair-blue);
-        }
-
-        .kpi-card.accent::before {
-            background: var(--ryanair-yellow);
-        }
-
-        .kpi-info h3 {
-            font-size: 10pt;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .kpi-info p {
-            font-size: 22pt;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-top: 4px;
-        }
-
-        .kpi-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: rgba(0, 51, 160, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16pt;
-            color: var(--ryanair-blue);
-        }
-
-        .kpi-card.accent .kpi-icon {
-            background: rgba(255, 209, 0, 0.15);
-            color: var(--ryanair-blue-dark);
-        }
-
-        /* Seção de Gráficos */
-        .charts-row {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 24px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 220px;
-            width: 100%;
-        }
-
-        /* Seção de Tabelas de Tarefas */
-        .tasks-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .task-input, .task-select {
-            padding: 10px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 10pt;
-            outline: none;
-            transition: border 0.2s;
-        }
-
+        .tasks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .task-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+        .task-input, .task-select { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 10pt; outline: none; transition: border 0.2s; }
         .task-input { flex: 1; }
         .task-input:focus, .task-select:focus { border-color: var(--ryanair-blue); }
 
-        .btn-add {
-            background: var(--ryanair-blue);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
+        .btn-add { background: var(--ryanair-blue); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 6px; }
         .btn-add:hover { background: var(--ryanair-blue-dark); }
+        .btn-drawer { background: var(--ryanair-yellow); color: var(--ryanair-blue-dark); border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-drawer:hover { background: var(--ryanair-yellow-hover); }
 
-        /* Estilização das Tabelas Premium */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .task-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10pt; }
+        .task-table th { padding: 12px; background: #F8FAFC; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid var(--border-color); }
+        .task-table td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .task-table tr:hover { background: rgba(0, 51, 160, 0.01); }
 
-        .task-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 10pt;
-        }
+        .checkbox-container { display: block; position: relative; padding-left: 28px; cursor: pointer; user-select: none; }
+        .checkbox-container input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+        .checkmark { position: absolute; top: 0; left: 0; height: 20px; width: 20px; background-color: #E2E8F0; border-radius: 6px; transition: all 0.2s; }
+        .checkbox-container:hover input ~ .checkmark { background-color: #CBD5E1; }
+        .checkbox-container input:checked ~ .checkmark { background-color: var(--success); }
+        .checkmark:after { content: ""; position: absolute; display: none; }
+        .checkbox-container input:checked ~ .checkmark:after { display: block; }
+        .checkbox-container .checkmark:after { left: 7px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
-        .task-table th {
-            padding: 12px;
-            background: #F8FAFC;
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 2px solid var(--border-color);
-        }
+        .task-text { font-weight: 500; transition: all 0.2s; }
+        .task-text-completed { text-decoration: line-through; color: var(--text-muted); font-weight: 500; transition: all 0.2s; }
 
-        .task-table td {
-            padding: 14px 12px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
+        .select-responsible {
+            background: rgba(0, 51, 160, 0.08); color: var(--ryanair-blue-dark); padding: 6px 10px; border-radius: 12px; font-weight: 600; font-size: 9pt; border: 1px solid transparent; cursor: pointer; outline: none; transition: all 0.2s; appearance: none; -webkit-appearance: none; -moz-appearance: none; text-align: center;
         }
+        .select-responsible:hover, .select-responsible:focus { background: rgba(0, 51, 160, 0.15); border: 1px solid var(--ryanair-blue-light); }
+        
+        .btn-action-task { background: none; border: none; cursor: pointer; font-size: 12pt; opacity: 0.4; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-action-task:hover { opacity: 1; }
 
-        .task-table tr:hover {
-            background: rgba(0, 51, 160, 0.01);
-        }
-
-        /* Custom Checkbox */
-        .checkbox-container {
-            display: block;
-            position: relative;
-            padding-left: 28px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .checkbox-container input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        .checkmark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 20px;
-            width: 20px;
-            background-color: #E2E8F0;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .checkbox-container:hover input ~ .checkmark {
-            background-color: #CBD5E1;
-        }
-
-        .checkbox-container input:checked ~ .checkmark {
-            background-color: var(--success);
-        }
-
-        .checkmark:after {
-            content: "";
-            position: absolute;
-            display: none;
-        }
-
-        .checkbox-container input:checked ~ .checkmark:after {
-            display: block;
-        }
-
-        .checkbox-container .checkmark:after {
-            left: 7px;
-            top: 3px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .task-text {
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .task-row.completed .task-text {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-
-        .badge-responsible {
-            background: rgba(0, 51, 160, 0.08);
-            color: var(--ryanair-blue-dark);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 8.5pt;
-            display: inline-block;
-        }
-
-        .timestamp-box {
-            font-size: 8.5pt;
-            color: var(--text-muted);
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .timestamp-box i {
-            color: var(--success);
-        }
-
-        /* Seção de Insights Automatizados */
-        .insights-box {
-            background: linear-gradient(135deg, var(--ryanair-blue-dark) 0%, var(--ryanair-blue) 100%);
-            color: white;
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-        }
-
-        .insights-box h3 {
-            color: var(--ryanair-yellow);
-            font-size: 13pt;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .insights-content {
-            font-size: 11pt;
-            line-height: 1.6;
-        }
-
-        .btn-delete-task {
-            background: none;
-            border: none;
-            color: #EF4444;
-            cursor: pointer;
-            font-size: 10pt;
-            opacity: 0.4;
-            transition: opacity 0.2s;
-        }
-
-        .btn-delete-task:hover {
-            opacity: 1;
-        }
+        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s; }
+        .drawer { position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: white; z-index: 1000; box-shadow: -5px 0 25px rgba(0,0,0,0.1); transition: right 0.3s; display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-overlay.open { display: block; opacity: 1; }
+        
+        .drawer-header { padding: 24px; background: var(--ryanair-blue-dark); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .drawer-header h2 { font-size: 14pt; margin: 0; }
+        .close-drawer { background: none; border: none; color: white; font-size: 16pt; cursor: pointer; }
+        .drawer-content { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .bank-task-btn { width: 100%; text-align: left; padding: 12px 16px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 10pt; font-weight: 600; color: var(--ryanair-blue-dark); transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .bank-task-btn:hover { background: var(--ryanair-yellow); border-color: var(--ryanair-yellow); }
     </style>
 </head>
 <body>
@@ -513,9 +161,12 @@
 <div class="dashboard-container">
     
     <header class="header-dash">
-        <div class="header-title">
-            <h1><i class="fa-solid fa-plane-departure"></i> RYANAIR <span>TASKPIT</span></h1>
-            <p>Plataforma Interna de Monitorização e Operação de Tarefas Diárias</p>
+        <div class="header-content-left">
+            <img src="ryanair-logo-2.png" alt="Ryanair Logo" class="header-logo">
+            <div class="header-title">
+                <h1><span>TECH SUPPORT</span> MANAGEMENT</h1>
+                <p>Engineering & Maintenance</p>
+            </div>
         </div>
         <div class="real-time-badge">
             <i class="fa-solid fa-circle-dot"></i> Live Firebase Sync (Multi-User)
@@ -523,74 +174,45 @@
     </header>
 
     <div class="sidebar-column">
-        
         <div class="card">
-            <div class="card-title">
-                <i class="fa-regular fa-calendar-days"></i> Calendário Operacional
-            </div>
+            <div class="card-title"><i class="fa-regular fa-calendar-days"></i> Calendário Operacional</div>
             <div class="calendar-header">
                 <button class="calendar-btn" id="prevMonthBtn"><i class="fa-solid fa-chevron-left"></i></button>
                 <span id="calendarMonthYear">...</span>
                 <button class="calendar-btn" id="nextMonthBtn"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
-            <div class="calendar-grid" id="calendarGrid">
-                </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
         </div>
 
         <div class="card">
-            <div class="card-title">
-                <i class="fa-solid fa-bell"></i> Obrigações e Alertas Mensais
+            <div class="card-title"><i class="fa-solid fa-chart-pie"></i> Mix de Trabalho Diário</div>
+            <div class="chart-container">
+                <canvas id="mixChart"></canvas>
             </div>
-            <div id="monthlyAlertsContainer">
-                </div>
         </div>
-
     </div>
 
     <div class="main-column">
-        
-        <div class="kpi-row">
-            <div class="kpi-card">
-                <div class="kpi-info">
-                    <h3>Data Selecionada</h3>
-                    <p id="kpiSelectedDate">--/--/----</p>
-                </div>
-                <div class="kpi-icon"><i class="fa-solid fa-calendar-day"></i></div>
+
+        <div class="card" id="dailyAlertMainCard" style="border: 2px solid var(--ryanair-yellow); background: #FFFDF0; display: none; margin-bottom: 8px;">
+            <div class="card-title" style="color: var(--ryanair-blue-dark); margin-bottom: 12px; border-bottom: 2px solid var(--ryanair-yellow);">
+                <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-orange);"></i> ALERTA DIÁRIO RELEVANTE
             </div>
-            <div class="kpi-card accent">
-                <div class="kpi-info">
-                    <h3>Conclusão Total</h3>
-                    <p id="kpiCompletionRate">0%</p>
-                </div>
-                <div class="kpi-icon"><i class="fa-solid fa-chart-pie"></i></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-info">
-                    <h3>Tarefas Concluídas</h3>
-                    <p id="kpiCompletedCount">0/0</p>
-                </div>
-                <div class="kpi-icon"><i class="fa-solid fa-check-double"></i></div>
-            </div>
-            <div class="kpi-card accent">
-                <div class="kpi-info">
-                    <h3>Líder Operacional</h3>
-                    <p id="kpiLeader">Nenhum</p>
-                </div>
-                <div class="kpi-icon"><i class="fa-solid fa-crown"></i></div>
-            </div>
+            <div id="dailyAlertDynamicContainer"></div>
         </div>
 
         <div class="charts-row">
             <div class="card">
-                <div class="card-title"><i class="fa-solid fa-chart-line"></i> Produtividade Semanal Histórica</div>
-                <div class="chart-container">
-                    <canvas id="weeklyChart"></canvas>
-                </div>
+                <div class="card-title"><i class="fa-solid fa-bell"></i> Obrigações e Alertas Mensais</div>
+                <div id="monthlyAlertsContainer"></div>
             </div>
-            <div class="card">
-                <div class="card-title"><i class="fa-solid fa-chart-pie"></i> Mix de Trabalho</div>
-                <div class="chart-container">
-                    <canvas id="mixChart"></canvas>
+
+            <div class="card" style="border-left: 4px solid var(--danger);">
+                <div class="card-title" style="color: var(--danger);">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Quadro de Pendentes Globais
+                </div>
+                <div id="pendingBoardContainer" style="overflow-y: auto; max-height: 250px;">
+                    <p style="color:var(--text-muted); font-size:10pt;">A carregar pendentes...</p>
                 </div>
             </div>
         </div>
@@ -602,26 +224,23 @@
                 <div class="task-actions">
                     <input type="text" id="routineInput" class="task-input" placeholder="Nova tarefa rotineira...">
                     <select id="routineResponsible" class="task-select">
-                        <option value="Ana Silva">Ana S.</option>
-                        <option value="Pedro Costa">Pedro C.</option>
-                        <option value="Rita Santos">Rita S.</option>
-                        <option value="Carlos Reis">Carlos R.</option>
+                        <option value="Diana P.">Diana P.</option>
+                        <option value="Rita P.">Rita P.</option>
                     </select>
-                    <button class="btn-add" onclick="addTask('routine')"><i class="fa-solid fa-plus"></i></button>
+                    <button class="btn-add" onclick="addTask('routine')"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <div class="table-responsive">
                     <table class="task-table">
                         <thead>
                             <tr>
                                 <th style="width: 40px;">Status</th>
-                                <th style="width: 45%;">Tarefa</th>
+                                <th style="width: 40%;">Tarefa</th>
                                 <th>Responsável</th>
-                                <th>Data/Hora Conclusão</th>
-                                <th style="width: 30px;"></th>
+                                <th style="width: 110px;">Data/Hora</th>
+                                <th style="width: 50px;">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="routineTableBody">
-                            </tbody>
+                        <tbody id="routineTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -629,12 +248,11 @@
             <div class="card">
                 <div class="card-title"><i class="fa-solid fa-circle-exclamation"></i> 2. Tarefas Pontuais (Específicas)</div>
                 <div class="task-actions">
-                    <input type="text" id="punctualInput" class="task-input" placeholder="Nova tarefa pontual...">
+                    <button class="btn-drawer" onclick="toggleDrawer(true)"><i class="fa-solid fa-list-check"></i> Banco de Tarefas</button>
+                    <input type="text" id="punctualInput" class="task-input" placeholder="Outra tarefa...">
                     <select id="punctualResponsible" class="task-select">
-                        <option value="Ana Silva">Ana S.</option>
-                        <option value="Pedro Costa">Pedro C.</option>
-                        <option value="Rita Santos">Rita S.</option>
-                        <option value="Carlos Reis">Carlos R.</option>
+                        <option value="Diana P.">Diana P.</option>
+                        <option value="Rita P.">Rita P.</option>
                     </select>
                     <button class="btn-add" onclick="addTask('punctual')"><i class="fa-solid fa-plus"></i></button>
                 </div>
@@ -643,34 +261,33 @@
                         <thead>
                             <tr>
                                 <th style="width: 40px;">Status</th>
-                                <th style="width: 45%;">Tarefa</th>
+                                <th style="width: 40%;">Tarefa</th>
                                 <th>Responsável</th>
-                                <th>Data/Hora Conclusão</th>
-                                <th style="width: 30px;"></th>
+                                <th style="width: 110px;">Data/Hora</th>
+                                <th style="width: 50px;">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="punctualTableBody">
-                            </tbody>
+                        <tbody id="punctualTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
         </div>
-
-        <div class="insights-box">
-            <h3><i class="fa-solid fa-lightbulb"></i> Smart Insights Automáticos</h3>
-            <div class="insights-content" id="insightsContent">
-                Selecione um dia ou atualize as tarefas para gerar os insights operacionais da equipa em tempo real.
-            </div>
-        </div>
-
     </div>
+</div>
 
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+<div class="drawer" id="tasksDrawer">
+    <div class="drawer-header">
+        <h2>Tarefas do Mês</h2>
+        <button class="close-drawer" onclick="toggleDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="drawer-content" id="drawerBankContent">
+        </div>
 </div>
 
 <script>
     // --- 1. CONFIGURAÇÃO DO FIREBASE ---
-    // Credenciais inseridas corretamente!
     const firebaseConfig = {
         apiKey: "AIzaSyCTFtmMVg9EPcCnUpxdJ7twLiCPnnpSL1k",
         authDomain: "ryanair-dashboard.firebaseapp.com",
@@ -680,7 +297,6 @@
         appId: "1:947623101872:web:5e110de6c1a970e508c275"
     };
 
-    // Inicializar o Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -688,24 +304,36 @@
     let currentDate = new Date();
     let selectedDateStr = formatDateKey(currentDate);
     let dayData = { routine: [], punctual: [] }; 
-    let unsubscribe = null; 
+    let unsubscribeDaily = null; 
+    let unsubscribePendings = null;
+    let unsubscribeRoutines = null;
+    let globalPendings = {};
+    let globalRoutines = []; 
 
-    const defaultRoutineTasks = [
-        { texto: "Verificação do checklist do plano de voo e tripulação", responsavel: "Ana Silva", concluida: false, timestamp: "" },
-        { texto: "Auditoria de segurança aos balcões de embarque", responsavel: "Pedro Costa", concluida: false, timestamp: "" },
-        { texto: "Sincronização dos relatórios de faturação diária", responsavel: "Rita Santos", concluida: false, timestamp: "" },
-        { texto: "Supervisão do handling e rotação de aeronaves", responsavel: "Carlos Reis", concluida: false, timestamp: "" }
+    const bankTasks = [
+        "NEW-STARTERS SS", "OJT warning", "BOARDS (PT, REGIONAL, PRIORITY)", 
+        "ESR", "RENEWAL RA120", "RENEWAL PACS", "EXP. COURSES ALERT", 
+        "EXP. AML ALERT", "BASE VISIT", "MONTHLY REPORT", 
+        "DOCUMENTAL PROCEDURE", "KITS A-CHECK", "AMOS updated expiring list"
     ];
 
-    let weeklyChartObj = null;
     let mixChartObj = null;
 
     document.addEventListener("DOMContentLoaded", () => {
         initCalendar();
         initCharts();
-        loadDateData(selectedDateStr); 
         renderAlerts();
+        populateDrawer();
+        
+        // ORDEM DE CARREGAMENTO IMPORTANTE
+        listenGlobalRoutines(); 
+        listenGlobalPendings();
+        loadDateData(selectedDateStr); 
     });
+
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
 
     function formatDateKey(date) {
         let d = new Date(date);
@@ -717,34 +345,96 @@
         return [year, month, day].join('-');
     }
 
-    // --- 3. MOTOR REAL-TIME (FIREBASE) ---
-    function loadDateData(dateStr) {
-        if (unsubscribe) {
-            unsubscribe();
-        }
+    // --- 3. MOTOR REAL-TIME (FIREBASE) COM LIMPEZA DE DADOS (GLOBAL ROUTINES) ---
 
-        const docRef = db.collection('daily_tasks').doc(dateStr);
-
-        unsubscribe = docRef.onSnapshot((doc) => {
-            if (doc.exists) {
-                dayData = doc.data();
-                updateDashboard();
+    // Ouve as tarefas rotineiras globais
+    function listenGlobalRoutines() {
+        unsubscribeRoutines = db.collection('global_status').doc('routines').onSnapshot((doc) => {
+            if(doc.exists) {
+                globalRoutines = doc.data().list || [];
             } else {
-                const newDayData = {
-                    routine: JSON.parse(JSON.stringify(defaultRoutineTasks)),
-                    punctual: []
-                };
-                docRef.set(newDayData); 
+                // Se ainda não existir a lista global, cria com as duas oficiais
+                globalRoutines = [
+                    { id: generateId(), texto: "OPO A-CHECK SS UPDATE", responsavel: "Diana P." },
+                    { id: generateId(), texto: "NO-INFO DELAYS SS", responsavel: "Rita P." }
+                ];
+                db.collection('global_status').doc('routines').set({ list: globalRoutines });
             }
+            syncDayRoutines(); 
         });
     }
 
+    function loadDateData(dateStr) {
+        if (unsubscribeDaily) unsubscribeDaily();
+
+        const docRef = db.collection('daily_tasks').doc(dateStr);
+        unsubscribeDaily = docRef.onSnapshot((doc) => {
+            if (doc.exists) {
+                dayData = doc.data();
+            } else {
+                dayData = { routine: [], punctual: [] };
+            }
+            syncDayRoutines(); // Força a verificação e limpeza sempre que a data é lida
+            checkDailyAlerts(); 
+        });
+    }
+
+    // A MÁGICA DE LIMPEZA: Compara o que está no dia com a lista Global
+    function syncDayRoutines() {
+        if (!dayData || globalRoutines.length === 0) return;
+        
+        let currentDayRoutines = dayData.routine || [];
+        let syncedRoutines = [];
+
+        globalRoutines.forEach(gr => {
+            // Procura se a rotina global já existe no dia selecionado
+            let existing = currentDayRoutines.find(r => r.texto === gr.texto);
+            if (existing) {
+                syncedRoutines.push(existing); // Mantém o status/checkbox se já existir
+            } else {
+                syncedRoutines.push({ id: gr.id, texto: gr.texto, responsavel: gr.responsavel, status: "aberta", motivo: "", timestamp: "" });
+            }
+        });
+
+        // Se houver lixo antigo no dia, o "mudou" vai detetar a diferença
+        let mudou = JSON.stringify(currentDayRoutines) !== JSON.stringify(syncedRoutines);
+        
+        dayData.routine = syncedRoutines; // Substitui totalmente! O lixo é apagado.
+        
+        if (mudou) {
+            saveDB(); // Grava a limpeza no Firebase automaticamente
+        }
+        updateDashboard();
+    }
+
     function saveDB() {
+        if(!dayData) return;
         db.collection('daily_tasks').doc(selectedDateStr).set(dayData)
           .catch((error) => console.error("Erro ao guardar na nuvem:", error));
     }
 
-    // --- 4. MOTOR DO CALENDÁRIO ---
+    function listenGlobalPendings() {
+        unsubscribePendings = db.collection('global_status').doc('pendings').onSnapshot((doc) => {
+            if(doc.exists) {
+                globalPendings = doc.data().tasks || {};
+            } else {
+                globalPendings = {};
+                db.collection('global_status').doc('pendings').set({ tasks: {} });
+            }
+            renderPendingBoard();
+        });
+    }
+
+    function updateGlobalPending(task, isPending) {
+        if (isPending) {
+            globalPendings[task.id] = { ...task, date: selectedDateStr };
+        } else {
+            delete globalPendings[task.id];
+        }
+        db.collection('global_status').doc('pendings').set({ tasks: globalPendings });
+    }
+
+    // --- 4. CALENDÁRIO ---
     const monthsPt = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const weekdaysPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -759,19 +449,14 @@
         monthYearLabel.innerText = `${monthsPt[month]} ${year}`;
 
         weekdaysPt.forEach(day => {
-            let div = document.createElement("div");
-            div.className = "weekday";
-            div.innerText = day;
-            grid.appendChild(div);
+            let div = document.createElement("div"); div.className = "weekday"; div.innerText = day; grid.appendChild(div);
         });
 
         let firstDayIndex = new Date(year, month, 1).getDay();
         let totalDays = new Date(year, month + 1, 0).getDate();
 
         for (let i = 0; i < firstDayIndex; i++) {
-            let div = document.createElement("div");
-            div.className = "calendar-day empty";
-            grid.appendChild(div);
+            let div = document.createElement("div"); div.className = "calendar-day empty"; grid.appendChild(div);
         }
 
         let todayStr = formatDateKey(new Date());
@@ -781,7 +466,6 @@
             div.innerText = day;
 
             let thisDateStr = formatDateKey(new Date(year, month, day));
-            
             if (thisDateStr === todayStr) div.classList.add("today");
             if (thisDateStr === selectedDateStr) div.classList.add("active");
 
@@ -791,26 +475,271 @@
                 selectedDateStr = thisDateStr;
                 loadDateData(selectedDateStr); 
             };
-
             grid.appendChild(div);
         }
     }
 
-    document.getElementById("prevMonthBtn").onclick = () => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        initCalendar();
-    };
-    document.getElementById("nextMonthBtn").onclick = () => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        initCalendar();
-    };
+    document.getElementById("prevMonthBtn").onclick = () => { currentDate.setMonth(currentDate.getMonth() - 1); initCalendar(); };
+    document.getElementById("nextMonthBtn").onclick = () => { currentDate.setMonth(currentDate.getMonth() + 1); initCalendar(); };
+
+    // --- 5. LÓGICA DE TAREFAS E INTERAÇÕES ---
+    function addTask(type, forceText = null) {
+        let textVal = forceText;
+        let respSelect = document.getElementById(`${type}Responsible`);
+        
+        if (!forceText) {
+            let input = document.getElementById(`${type}Input`);
+            textVal = input.value.trim();
+            input.value = "";
+        }
+
+        if (!textVal) return;
+
+        if (type === 'routine') {
+            // Nova Rotina -> Adiciona à base de dados Global
+            globalRoutines.push({ id: generateId(), texto: textVal, responsavel: respSelect.value });
+            db.collection('global_status').doc('routines').set({ list: globalRoutines });
+        } else {
+            // Nova Pontual -> Adiciona apenas ao dia selecionado
+            let newTask = { id: generateId(), texto: textVal, responsavel: respSelect.value, status: "aberta", motivo: "", timestamp: "" };
+            dayData[type].push(newTask);
+            saveDB(); 
+        }
+    }
+
+    function deleteTask(type, index) {
+        let task = dayData[type][index];
+        if(task.status === 'pendente') updateGlobalPending(task, false);
+        
+        if (type === 'routine') {
+            // Apagar Rotina -> Remove da base de dados Global
+            globalRoutines = globalRoutines.filter(r => r.texto !== task.texto);
+            db.collection('global_status').doc('routines').set({ list: globalRoutines });
+        } else {
+            dayData[type].splice(index, 1);
+            saveDB(); 
+        }
+    }
+
+    function toggleCheck(type, index) {
+        let task = dayData[type][index];
+        
+        if (task.status === 'concluida') {
+            task.status = 'aberta';
+            task.timestamp = "";
+        } else {
+            if (task.status === 'pendente') updateGlobalPending(task, false);
+            
+            task.status = 'concluida';
+            let now = new Date();
+            task.timestamp = `${now.toLocaleDateString('pt-PT')} às ${now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`;
+            task.motivo = "";
+        }
+        saveDB(); 
+    }
+
+    function togglePending(type, index) {
+        let task = dayData[type][index];
+        
+        if (task.status === 'pendente') {
+            task.status = 'aberta';
+            task.motivo = "";
+            updateGlobalPending(task, false);
+        } else {
+            let motivo = prompt("Esta tarefa está pendente. Qual o motivo?");
+            if (motivo !== null && motivo.trim() !== "") {
+                task.status = 'pendente';
+                task.motivo = motivo.trim();
+                task.timestamp = ""; 
+                updateGlobalPending(task, true);
+            }
+        }
+        saveDB(); 
+    }
+
+    function changeResponsible(type, index, newValue) {
+        let task = dayData[type][index];
+        task.responsavel = newValue;
+        if (task.status === 'pendente') {
+            updateGlobalPending(task, true);
+        } else {
+            saveDB();
+        }
+    }
+
+    // --- 6. GAVETA (DRAWER) DO BANCO DE TAREFAS ---
+    function toggleDrawer(open) {
+        const overlay = document.getElementById('drawerOverlay');
+        const drawer = document.getElementById('tasksDrawer');
+        if(open) { overlay.classList.add('open'); drawer.classList.add('open'); } 
+        else { overlay.classList.remove('open'); drawer.classList.remove('open'); }
+    }
+
+    function populateDrawer() {
+        const container = document.getElementById('drawerBankContent');
+        container.innerHTML = bankTasks.map(taskName => `
+            <button class="bank-task-btn" onclick="addFromBank('${taskName}')">
+                ${taskName} <i class="fa-solid fa-plus"></i>
+            </button>
+        `).join('');
+    }
+
+    function addFromBank(taskName) {
+        addTask('punctual', taskName);
+        toggleDrawer(false);
+    }
+
+    // --- 7. LÓGICA DE ALERTA DIÁRIO INTELIGENTE ---
+    function isSecondMonday(year, month, day) {
+        if (new Date(year, month, day).getDay() !== 1) return false;
+        let firstMonday = 1;
+        while (new Date(year, month, firstMonday).getDay() !== 1) { firstMonday++; }
+        return day === (firstMonday + 7);
+    }
+
+    function checkDailyAlerts() {
+        const mainCard = document.getElementById("dailyAlertMainCard");
+        const container = document.getElementById("dailyAlertDynamicContainer");
+        if (!mainCard || !container) return;
+
+        const parts = selectedDateStr.split('-');
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1; 
+        const day = parseInt(parts[2]);
+
+        let dynamicHtml = "";
+
+        if (isSecondMonday(year, month, day)) {
+            dynamicHtml += `
+                <div class="daily-alert-box" style="background: rgba(30, 86, 212, 0.06); border-left: 5px solid var(--ryanair-blue-light);">
+                    <i class="fa-solid fa-plane-arrival" style="font-size: 20px; color: var(--ryanair-blue-dark); margin-top:2px;"></i>
+                    <div>
+                        <strong style="color: var(--ryanair-blue-dark); font-size:11pt;">Marcar Data da BASE VISIT</strong>
+                        <p style="margin-top: 4px; color: #1E293B;">Estamos perto do meio do mês. Por favor, procedam ao agendamento da Base Visit.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (day >= 25) {
+            dynamicHtml += `
+                <div class="daily-alert-box" style="background: rgba(239, 68, 68, 0.06); border-left: 5px solid var(--danger);">
+                    <i class="fa-solid fa-file-signature" style="font-size: 20px; color: var(--danger); margin-top:2px;"></i>
+                    <div>
+                        <strong style="color: var(--danger); font-size:11pt;">Execução do MONTHLY REPORT </strong>
+                        <p style="margin-top: 4px; color: #1E293B;">Atenção, já passámos do dia 25 (hoje é dia ${day}). É necessário realizar o Monthly Report antes de acabar o mês.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (dynamicHtml !== "") {
+            container.innerHTML = dynamicHtml;
+            mainCard.style.display = "block";
+        } else {
+            mainCard.style.display = "none";
+            container.innerHTML = "";
+        }
+    }
+
+    // --- 8. ATUALIZAÇÃO DO ECRÃ (Tabelas e Componentes Estáticos) ---
+    function updateDashboard() {
+        if(!dayData) return;
+        renderTable('routine', dayData.routine || []);
+        renderTable('punctual', dayData.punctual || []);
+        updateCharts((dayData.routine || []).length, (dayData.punctual || []).length);
+    }
+
+    function renderTable(type, list) {
+        const tbody = document.getElementById(`${type}TableBody`);
+        tbody.innerHTML = "";
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma tarefa registada.</td></tr>`;
+            return;
+        }
+
+        list.forEach((task, index) => {
+            let isDone = task.status === 'concluida';
+            let isPending = task.status === 'pendente';
+            let tr = document.createElement("tr");
+            
+            let timestampHTML = "";
+            if (isDone) {
+                timestampHTML = `
+                    <div style="color: var(--text-muted); font-size: 8.5pt; display:flex; flex-direction:column; gap:2px;">
+                        <span style="color: var(--success); font-weight:600;"><i class="fa-solid fa-circle-check"></i> Concluído</span>
+                        <span>${task.timestamp}</span>
+                    </div>
+                `;
+            } else if (isPending) {
+                timestampHTML = `
+                    <div style="color: var(--danger); font-size: 8.5pt; font-weight:600;">
+                        <span><i class="fa-solid fa-triangle-exclamation"></i> Pendente</span>
+                    </div>
+                `;
+            }
+
+            let responsavelSelect = `
+                <select class="select-responsible" onchange="changeResponsible('${type}', ${index}, this.value)">
+                    <option value="Diana P." ${task.responsavel === 'Diana P.' ? 'selected' : ''}>Diana P.</option>
+                    <option value="Rita P." ${task.responsavel === 'Rita P.' ? 'selected' : ''}>Rita P.</option>
+                </select>
+            `;
+
+            tr.innerHTML = `
+                <td>
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleCheck('${type}', ${index})">
+                        <span class="checkmark"></span>
+                    </label>
+                </td>
+                <td><span class="${isDone ? 'task-text-completed' : 'task-text'}" style="${isPending ? 'color: var(--danger);' : ''}">${task.texto}</span></td>
+                <td>${responsavelSelect}</td>
+                <td>${timestampHTML}</td>
+                <td style="display: flex; gap: 8px;">
+                    <button class="btn-action-task" style="color: ${isPending ? 'var(--danger)' : 'var(--ryanair-yellow)'};" onclick="togglePending('${type}', ${index})" title="Marcar Pendente">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </button>
+                    <button class="btn-action-task" style="color: var(--danger);" onclick="deleteTask('${type}', ${index})" title="Apagar">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderPendingBoard() {
+        const container = document.getElementById("pendingBoardContainer");
+        const pendingsArray = Object.values(globalPendings);
+
+        if (pendingsArray.length === 0) {
+            container.innerHTML = `<p style="color:var(--success); font-weight:600; padding:10px;"><i class="fa-solid fa-check-double"></i> Tudo limpo! Sem tarefas pendentes.</p>`;
+            return;
+        }
+
+        container.innerHTML = pendingsArray.map(p => `
+            <div class="pending-item">
+                <div class="pending-header">
+                    <span>${p.texto}</span>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="pending-reason"><strong>Motivo:</strong> ${p.motivo}</div>
+                <div class="pending-meta">
+                    <span><i class="fa-regular fa-calendar"></i> Dia ${p.date.split('-').reverse().join('/')}</span>
+                    <span><i class="fa-regular fa-user"></i> ${p.responsavel}</span>
+                </div>
+            </div>
+        `).join('');
+    }
 
     function renderAlerts() {
         const container = document.getElementById("monthlyAlertsContainer");
         const alerts = [
-            { titulo: "Fecho Mensal de Escalas", desc: "Verificar e submeter até ao dia 28 de cada mês.", icone: "fa-plane" },
-            { titulo: "Auditoria de Segurança Trimestral", desc: "Revisão obrigatória de procedimentos de solo.", icone: "fa-shield-halved" },
-            { titulo: "Manutenção de Infraestruturas", desc: "Janela técnica agendada para a primeira semana do mês.", icone: "fa-wrench" }
+            { titulo: "Monthly Report", desc: "Realizar no fim de cada mês.", icone: "fa-plane" },
+            { titulo: "Base Visit", desc: "Realizar 1 vez por mês.", icone: "fa-shield-halved" },
+            { titulo: "AMOS Update Expiring List", desc: "Realizar de 2 em 2 meses.", icone: "fa-wrench" }
         ];
 
         container.innerHTML = alerts.map(a => `
@@ -824,201 +753,19 @@
         `).join('');
     }
 
-    // --- 5. CONTROLO DE TAREFAS ---
-    function addTask(type) {
-        let input = document.getElementById(`${type}Input`);
-        let respSelect = document.getElementById(`${type}Responsible`);
-        
-        if (!input.value.trim()) return;
-
-        let newTask = {
-            texto: input.value.trim(),
-            responsavel: respSelect.value,
-            concluida: false,
-            timestamp: ""
-        };
-
-        dayData[type].push(newTask);
-        saveDB(); 
-        input.value = "";
-    }
-
-    function deleteTask(type, index) {
-        dayData[type].splice(index, 1);
-        saveDB(); 
-    }
-
-    function toggleTask(type, index) {
-        let task = dayData[type][index];
-        task.concluida = !task.concluida;
-        
-        if (task.concluida) {
-            let now = new Date();
-            let dateFormatted = now.toLocaleDateString('pt-PT');
-            let timeFormatted = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-            task.timestamp = `${dateFormatted} às ${timeFormatted}`;
-        } else {
-            task.timestamp = "";
-        }
-
-        saveDB(); 
-    }
-
-    // --- 6. ATUALIZAÇÃO GERAL DO DASHBOARD ---
-    function updateDashboard() {
-        let splitDate = selectedDateStr.split('-');
-        document.getElementById("kpiSelectedDate").innerText = `${splitDate[2]}/${splitDate[1]}/${splitDate[0]}`;
-
-        let routineTasks = dayData.routine || [];
-        let punctualTasks = dayData.punctual || [];
-
-        renderTable('routine', routineTasks);
-        renderTable('punctual', punctualTasks);
-
-        let total = routineTasks.length + punctualTasks.length;
-        let completed = routineTasks.filter(t => t.concluida).length + punctualTasks.filter(t => t.concluida).length;
-        let rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-        document.getElementById("kpiCompletedCount").innerText = `${completed}/${total}`;
-        document.getElementById("kpiCompletionRate").innerText = `${rate}%`;
-
-        let respMap = {};
-        [...routineTasks, ...punctualTasks].forEach(t => {
-            if (t.concluida) {
-                respMap[t.responsavel] = (respMap[t.responsavel] || 0) + 1;
-            }
-        });
-        let leader = "Nenhum";
-        let maxDone = 0;
-        for (let name in respMap) {
-            if (respMap[name] > maxDone) {
-                maxDone = respMap[name];
-                leader = name.split(' ')[0]; 
-            }
-        }
-        document.getElementById("kpiLeader").innerText = leader + (maxDone > 0 ? ` (${maxDone})` : "");
-
-        updateCharts(routineTasks.length, punctualTasks.length, rate);
-        updateInsights(routineTasks, punctualTasks, rate, leader, maxDone);
-    }
-
-    function renderTable(type, list) {
-        const tbody = document.getElementById(`${type}TableBody`);
-        tbody.innerHTML = "";
-
-        if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma tarefa registada para este dia.</td></tr>`;
-            return;
-        }
-
-        list.forEach((task, index) => {
-            let tr = document.createElement("tr");
-            tr.className = `task-row ${task.concluida ? 'completed' : ''}`;
-
-            tr.innerHTML = `
-                <td>
-                    <label class="checkbox-container">
-                        <input type="checkbox" ${task.concluida ? 'checked' : ''} onchange="toggleTask('${type}', ${index})">
-                        <span class="checkmark"></span>
-                    </label>
-                </td>
-                <td><span class="task-text">${task.texto}</span></td>
-                <td><span class="badge-responsible">${task.responsavel}</span></td>
-                <td>
-                    <div class="timestamp-box">
-                        ${task.concluida ? `<span><i class="fa-solid fa-circle-check"></i> Concluído</span><span>${task.timestamp}</span>` : '<span style="color:#94A3B8;">Pendente</span>'}
-                    </div>
-                </td>
-                <td>
-                    <button class="btn-delete-task" onclick="deleteTask('${type}', ${index})"><i class="fa-solid fa-trash-can"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // --- GRÁFICOS (CHART.JS) ---
     function initCharts() {
-        const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
-        weeklyChartObj = new Chart(ctxWeekly, {
-            type: 'line',
-            data: {
-                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-                datasets: [{
-                    label: 'Eficiência Operacional (%)',
-                    data: [85, 92, 78, 88, 95, 70, 82],
-                    borderColor: '#0033A0',
-                    backgroundColor: 'rgba(0, 51, 160, 0.05)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { min: 0, max: 100 } }
-            }
-        });
-
         const ctxMix = document.getElementById('mixChart').getContext('2d');
         mixChartObj = new Chart(ctxMix, {
             type: 'doughnut',
-            data: {
-                labels: ['Rotineiras', 'Pontuais'],
-                datasets: [{
-                    data: [4, 2],
-                    backgroundColor: ['#0033A0', '#FFD100'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
+            data: { labels: ['Rotineiras', 'Pontuais'], datasets: [{ data: [0, 0], backgroundColor: ['#0033A0', '#FFD100'], borderWidth: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
-    function updateCharts(routineCount, punctualCount, currentRate) {
-        if (!weeklyChartObj || !mixChartObj) return;
+    function updateCharts(routineCount, punctualCount) {
+        if (!mixChartObj) return;
         mixChartObj.data.datasets[0].data = [routineCount, punctualCount];
         mixChartObj.update();
-        weeklyChartObj.data.datasets[0].data[2] = currentRate; 
-        weeklyChartObj.update();
-    }
-
-    // --- MOTOR DE INSIGHTS AUTOMÁTICOS ---
-    function updateInsights(routineTasks, punctualTasks, rate, leader, maxDone) {
-        const box = document.getElementById("insightsContent");
-        
-        let total = routineTasks.length + punctualTasks.length;
-        let routinePending = routineTasks.filter(t => !t.concluida).length;
-        let punctualPending = punctualTasks.filter(t => !t.concluida).length;
-
-        if (total === 0) {
-            box.innerHTML = "Não existem tarefas agendadas para esta data. Adicione novas tarefas para iniciar a monitorização inteligente.";
-            return;
-        }
-
-        let html = `Atualmente, a taxa de sucesso da equipa está em <strong>${rate}%</strong>. `;
-        
-        if (rate === 100) {
-            html += `🎉 <strong>Desempenho Excelente!</strong> Todas as operações foram asseguradas com sucesso dentro do horário previsto. Excelente liderança operacional de <strong>${leader}</strong> hoje.`;
-        } else if (rate >= 75) {
-            html += `📈 <strong>Operação Avançada:</strong> A maioria das obrigações críticas já está em conformidade. Restam apenas ${routinePending + punctualPending} tarefas por fechar. Mantenham o foco!`;
-        } else if (rate > 0) {
-            html += `⚡ <strong>Ritmo Ativo:</strong> As tarefas estão a ser despachadas. Neste momento, <strong>${leader}</strong> destaca-se com ${maxDone} conclusões. Há ainda um foco necessário em ${routinePending} rotinas do dia.`;
-        } else {
-            html += `💤 <strong>Início de Turno / Dia Pendente:</strong> Nenhuma tarefa foi concluída para esta data até ao momento. Certifique-se de que a equipa iniciou a verificação dos sistemas.`;
-        }
-
-        if (punctualPending > 2) {
-            html += `<br><br>⚠️ <strong>Aviso de Sobrecarga:</strong> Há uma acumulação de tarefas pontuais (${punctualPending} por fazer). Recomenda-se redistribuir responsabilidades para evitar atrasos na rotação diária.`;
-        }
-
-        box.innerHTML = html;
     }
 </script>
 
