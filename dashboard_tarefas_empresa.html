@@ -145,6 +145,8 @@
 
         .drawer-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s; }
         .drawer { position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: white; z-index: 1000; box-shadow: -5px 0 25px rgba(0,0,0,0.1); transition: right 0.3s; display: flex; flex-direction: column; }
+        #reportDrawer { right: -440px; }
+        #reportDrawer.open { right: 0; }
         .drawer.open { right: 0; }
         .drawer-overlay.open { display: block; opacity: 1; }
         
@@ -154,6 +156,10 @@
         .drawer-content { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .bank-task-btn { width: 100%; text-align: left; padding: 12px 16px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 10pt; font-weight: 600; color: var(--ryanair-blue-dark); transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
         .bank-task-btn:hover { background: var(--ryanair-yellow); border-color: var(--ryanair-yellow); }
+
+        .alert-form-fields { display: flex; flex-direction: column; gap: 8px; }
+        .alert-manage-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; }
+        .alert-manage-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -168,8 +174,11 @@
                 <p>Engineering & Maintenance</p>
             </div>
         </div>
-        <div class="real-time-badge">
-            <i class="fa-solid fa-circle-dot"></i> Live Firebase Sync (Multi-User)
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-drawer" onclick="toggleReportDrawer(true)"><i class="fa-solid fa-file-lines"></i> Relatório</button>
+            <div class="real-time-badge">
+                <i class="fa-solid fa-circle-dot"></i> Live Firebase Sync (Multi-User)
+            </div>
         </div>
     </header>
 
@@ -194,9 +203,10 @@
 
     <div class="main-column">
 
-        <div class="card" id="dailyAlertMainCard" style="border: 2px solid var(--ryanair-yellow); background: #FFFDF0; display: none; margin-bottom: 8px;">
-            <div class="card-title" style="color: var(--ryanair-blue-dark); margin-bottom: 12px; border-bottom: 2px solid var(--ryanair-yellow);">
-                <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-orange);"></i> ALERTA DIÁRIO RELEVANTE
+        <div class="card" id="dailyAlertMainCard" style="border: 2px solid var(--ryanair-yellow); background: #FFFDF0; margin-bottom: 8px;">
+            <div class="card-title" style="color: var(--ryanair-blue-dark); margin-bottom: 12px; border-bottom: 2px solid var(--ryanair-yellow); justify-content: space-between;">
+                <span><i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-orange);"></i> ALERTA DIÁRIO RELEVANTE</span>
+                <button class="btn-drawer" style="padding: 6px 14px; font-size: 9pt;" onclick="toggleAlertsDrawer(true)"><i class="fa-solid fa-gear"></i> Gerir Alertas</button>
             </div>
             <div id="dailyAlertDynamicContainer"></div>
         </div>
@@ -250,6 +260,7 @@
                 <div class="task-actions">
                     <button class="btn-drawer" onclick="toggleDrawer(true)"><i class="fa-solid fa-list-check"></i> Banco de Tarefas</button>
                     <input type="text" id="punctualInput" class="task-input" placeholder="Outra tarefa...">
+                    <input type="number" id="punctualQty" class="task-input" placeholder="Qtd" min="1" value="1" style="max-width: 70px; flex: none;">
                     <select id="punctualResponsible" class="task-select">
                         <option value="Diana P.">Diana P.</option>
                         <option value="Rita P.">Rita P.</option>
@@ -261,7 +272,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 40px;">Status</th>
-                                <th style="width: 40%;">Tarefa</th>
+                                <th style="width: 34%;">Tarefa</th>
+                                <th style="width: 70px;">Qtd</th>
                                 <th>Responsável</th>
                                 <th style="width: 110px;">Data/Hora</th>
                                 <th style="width: 50px;">Ações</th>
@@ -284,6 +296,92 @@
     </div>
     <div class="drawer-content" id="drawerBankContent">
         </div>
+</div>
+
+<div class="drawer-overlay" id="alertsDrawerOverlay" onclick="toggleAlertsDrawer(false)"></div>
+<div class="drawer" id="alertsDrawer">
+    <div class="drawer-header">
+        <h2>Gerir Alertas Diários</h2>
+        <button class="close-drawer" onclick="toggleAlertsDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="drawer-content">
+        <div style="display:flex; flex-direction:column; gap:10px; padding-bottom:16px; border-bottom: 1px solid var(--border-color); margin-bottom: 16px;">
+            <strong id="alertFormTitle" style="color:var(--ryanair-blue-dark); font-size:11pt;">Novo Alerta</strong>
+            <input type="text" id="alertTitulo" class="task-input" placeholder="Título do alerta">
+            <input type="text" id="alertDesc" class="task-input" placeholder="Descrição">
+
+            <select id="alertTipo" class="task-select" onchange="updateAlertFormFields()">
+                <option value="dia_fixo">Num dia fixo do mês</option>
+                <option value="a_partir_dia">A partir de um dia até ao fim do mês</option>
+                <option value="ocorrencia_semana">Numa ocorrência de dia da semana (ex: 2ª segunda-feira)</option>
+            </select>
+
+            <div id="alertFieldsDiaFixo" class="alert-form-fields">
+                <input type="number" id="alertDiaFixo" class="task-input" placeholder="Dia do mês (1-31)" min="1" max="31">
+            </div>
+
+            <div id="alertFieldsAPartir" class="alert-form-fields" style="display:none;">
+                <input type="number" id="alertDiaInicio" class="task-input" placeholder="A partir do dia (1-31)" min="1" max="31">
+            </div>
+
+            <div id="alertFieldsOcorrencia" class="alert-form-fields" style="display:none; flex-direction: row;">
+                <select id="alertDiaSemana" class="task-select" style="flex:1;">
+                    <option value="0">Domingo</option>
+                    <option value="1">Segunda</option>
+                    <option value="2">Terça</option>
+                    <option value="3">Quarta</option>
+                    <option value="4">Quinta</option>
+                    <option value="5">Sexta</option>
+                    <option value="6">Sábado</option>
+                </select>
+                <select id="alertOcorrencia" class="task-select" style="flex:1;">
+                    <option value="1">1ª</option>
+                    <option value="2">2ª</option>
+                    <option value="3">3ª</option>
+                    <option value="4">4ª</option>
+                    <option value="-1">Última</option>
+                </select>
+            </div>
+
+            <select id="alertCor" class="task-select">
+                <option value="azul">Azul</option>
+                <option value="laranja">Laranja</option>
+                <option value="vermelho">Vermelho</option>
+            </select>
+
+            <div style="display:flex; gap:8px;">
+                <button class="btn-add" style="flex:1; justify-content:center;" onclick="submitAlertForm()"><i class="fa-solid fa-check"></i> Guardar</button>
+                <button class="btn-add" id="cancelEditBtn" style="flex:none; background: var(--text-muted); display:none;" onclick="resetAlertForm()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <div id="alertsManageList"></div>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="reportDrawerOverlay" onclick="toggleReportDrawer(false)"></div>
+<div class="drawer" id="reportDrawer" style="width: 440px;">
+    <div class="drawer-header">
+        <h2>Relatório de Tarefas</h2>
+        <button class="close-drawer" onclick="toggleReportDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="drawer-content">
+        <div style="display:flex; gap:8px; margin-bottom: 12px;">
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:9pt; color:var(--text-muted); font-weight:600;">De</label>
+                <input type="date" id="reportStartDate" class="task-input">
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:9pt; color:var(--text-muted); font-weight:600;">Até</label>
+                <input type="date" id="reportEndDate" class="task-input">
+            </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom: 16px;">
+            <button class="btn-add" style="flex:1; justify-content:center;" onclick="generateReport()"><i class="fa-solid fa-magnifying-glass-chart"></i> Gerar Relatório</button>
+            <button class="btn-drawer" id="exportCsvBtn" style="display:none;" onclick="exportReportCsv()" title="Exportar para Excel/CSV"><i class="fa-solid fa-file-csv"></i></button>
+        </div>
+        <div id="reportResultsContainer"></div>
+    </div>
 </div>
 
 <script>
@@ -309,6 +407,10 @@
     let unsubscribeRoutines = null;
     let globalPendings = {};
     let globalRoutines = []; 
+    let dailyAlertsConfig = [];
+    let unsubscribeDailyAlertsConfig = null;
+    let editingAlertId = null;
+    let reportDataCache = [];
 
     const bankTasks = [
         "NEW-STARTERS SS", "OJT warning", "BOARDS (PT, REGIONAL, PRIORITY)", 
@@ -328,7 +430,14 @@
         // ORDEM DE CARREGAMENTO IMPORTANTE
         listenGlobalRoutines(); 
         listenGlobalPendings();
+        listenDailyAlertsConfig();
         loadDateData(selectedDateStr); 
+
+        // Datas por defeito no relatório: do início do mês até hoje
+        let today = new Date();
+        let firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        document.getElementById('reportStartDate').value = formatDateKey(firstOfMonth);
+        document.getElementById('reportEndDate').value = formatDateKey(today);
     });
 
     function generateId() {
@@ -501,10 +610,22 @@
             db.collection('global_status').doc('routines').set({ list: globalRoutines });
         } else {
             // Nova Pontual -> Adiciona apenas ao dia selecionado
-            let newTask = { id: generateId(), texto: textVal, responsavel: respSelect.value, status: "aberta", motivo: "", timestamp: "" };
+            let qtyInput = document.getElementById('punctualQty');
+            let qtyVal = qtyInput ? parseInt(qtyInput.value) : 1;
+            if (!qtyVal || qtyVal < 1) qtyVal = 1;
+            if (qtyInput) qtyInput.value = "1";
+
+            let newTask = { id: generateId(), texto: textVal, responsavel: respSelect.value, status: "aberta", motivo: "", timestamp: "", quantidade: qtyVal };
             dayData[type].push(newTask);
             saveDB(); 
         }
+    }
+
+    function changeQuantity(type, index, newValue) {
+        let task = dayData[type][index];
+        let qty = parseInt(newValue);
+        task.quantidade = (!qty || qty < 1) ? 1 : qty;
+        saveDB();
     }
 
     function deleteTask(type, index) {
@@ -589,13 +710,178 @@
         toggleDrawer(false);
     }
 
-    // --- 7. LÓGICA DE ALERTA DIÁRIO INTELIGENTE ---
-    function isSecondMonday(year, month, day) {
-        if (new Date(year, month, day).getDay() !== 1) return false;
-        let firstMonday = 1;
-        while (new Date(year, month, firstMonday).getDay() !== 1) { firstMonday++; }
-        return day === (firstMonday + 7);
+    // --- 7. LÓGICA DE ALERTAS DIÁRIOS CONFIGURÁVEIS ---
+    function listenDailyAlertsConfig() {
+        unsubscribeDailyAlertsConfig = db.collection('global_status').doc('dailyAlertsConfig').onSnapshot((doc) => {
+            if (doc.exists) {
+                dailyAlertsConfig = doc.data().list || [];
+            } else {
+                // Migra os 2 alertas que existiam fixos no código para o novo sistema
+                dailyAlertsConfig = [
+                    { id: generateId(), titulo: "Marcar Data da BASE VISIT", desc: "Estamos perto do meio do mês. Por favor, procedam ao agendamento da Base Visit.", icone: "fa-plane-arrival", tipo: "ocorrencia_semana", diaSemana: 1, ocorrencia: 2, cor: "azul" },
+                    { id: generateId(), titulo: "Execução do MONTHLY REPORT", desc: "Atenção, já passámos do dia 25. É necessário realizar o Monthly Report antes de acabar o mês.", icone: "fa-file-signature", tipo: "a_partir_dia", diaInicio: 25, cor: "vermelho" }
+                ];
+                db.collection('global_status').doc('dailyAlertsConfig').set({ list: dailyAlertsConfig });
+            }
+            renderAlertsManageList();
+            checkDailyAlerts();
+        });
     }
+
+    function saveAlertsConfig() {
+        db.collection('global_status').doc('dailyAlertsConfig').set({ list: dailyAlertsConfig });
+    }
+
+    function toggleAlertsDrawer(open) {
+        const overlay = document.getElementById('alertsDrawerOverlay');
+        const drawer = document.getElementById('alertsDrawer');
+        if (open) {
+            overlay.classList.add('open'); drawer.classList.add('open');
+            renderAlertsManageList();
+        } else {
+            overlay.classList.remove('open'); drawer.classList.remove('open');
+            resetAlertForm();
+        }
+    }
+
+    function updateAlertFormFields() {
+        let tipo = document.getElementById('alertTipo').value;
+        document.getElementById('alertFieldsDiaFixo').style.display = tipo === 'dia_fixo' ? 'flex' : 'none';
+        document.getElementById('alertFieldsAPartir').style.display = tipo === 'a_partir_dia' ? 'flex' : 'none';
+        document.getElementById('alertFieldsOcorrencia').style.display = tipo === 'ocorrencia_semana' ? 'flex' : 'none';
+    }
+
+    function resetAlertForm() {
+        editingAlertId = null;
+        document.getElementById('alertFormTitle').innerText = "Novo Alerta";
+        document.getElementById('alertTitulo').value = "";
+        document.getElementById('alertDesc').value = "";
+        document.getElementById('alertTipo').value = "dia_fixo";
+        document.getElementById('alertDiaFixo').value = "";
+        document.getElementById('alertDiaInicio').value = "";
+        document.getElementById('alertDiaSemana').value = "1";
+        document.getElementById('alertOcorrencia').value = "1";
+        document.getElementById('alertCor').value = "azul";
+        document.getElementById('cancelEditBtn').style.display = "none";
+        updateAlertFormFields();
+    }
+
+    function editAlert(id) {
+        let regra = dailyAlertsConfig.find(a => a.id === id);
+        if (!regra) return;
+        editingAlertId = id;
+        document.getElementById('alertFormTitle').innerText = "Editar Alerta";
+        document.getElementById('alertTitulo').value = regra.titulo;
+        document.getElementById('alertDesc').value = regra.desc;
+        document.getElementById('alertTipo').value = regra.tipo;
+        document.getElementById('alertDiaFixo').value = regra.dia || "";
+        document.getElementById('alertDiaInicio').value = regra.diaInicio || "";
+        document.getElementById('alertDiaSemana').value = regra.diaSemana !== undefined ? regra.diaSemana : "1";
+        document.getElementById('alertOcorrencia').value = regra.ocorrencia !== undefined ? regra.ocorrencia : "1";
+        document.getElementById('alertCor').value = regra.cor || "azul";
+        document.getElementById('cancelEditBtn').style.display = "flex";
+        updateAlertFormFields();
+    }
+
+    function deleteAlert(id) {
+        if (!confirm("Tens a certeza que queres apagar este alerta?")) return;
+        dailyAlertsConfig = dailyAlertsConfig.filter(a => a.id !== id);
+        saveAlertsConfig();
+        if (editingAlertId === id) resetAlertForm();
+    }
+
+    function submitAlertForm() {
+        let titulo = document.getElementById('alertTitulo').value.trim();
+        let desc = document.getElementById('alertDesc').value.trim();
+        let tipo = document.getElementById('alertTipo').value;
+        let cor = document.getElementById('alertCor').value;
+
+        if (!titulo) { alert("Por favor insere um título para o alerta."); return; }
+
+        let iconeMap = { azul: "fa-circle-info", laranja: "fa-triangle-exclamation", vermelho: "fa-file-signature" };
+        let ruleData = { titulo, desc, cor, tipo, icone: iconeMap[cor] || "fa-bell" };
+
+        if (tipo === 'dia_fixo') {
+            let dia = parseInt(document.getElementById('alertDiaFixo').value);
+            if (!dia || dia < 1 || dia > 31) { alert("Indica um dia do mês válido (1-31)."); return; }
+            ruleData.dia = dia;
+        } else if (tipo === 'a_partir_dia') {
+            let diaInicio = parseInt(document.getElementById('alertDiaInicio').value);
+            if (!diaInicio || diaInicio < 1 || diaInicio > 31) { alert("Indica um dia de início válido (1-31)."); return; }
+            ruleData.diaInicio = diaInicio;
+        } else if (tipo === 'ocorrencia_semana') {
+            ruleData.diaSemana = parseInt(document.getElementById('alertDiaSemana').value);
+            ruleData.ocorrencia = parseInt(document.getElementById('alertOcorrencia').value);
+        }
+
+        if (editingAlertId) {
+            let idx = dailyAlertsConfig.findIndex(a => a.id === editingAlertId);
+            if (idx > -1) dailyAlertsConfig[idx] = { ...dailyAlertsConfig[idx], ...ruleData };
+        } else {
+            dailyAlertsConfig.push({ id: generateId(), ...ruleData });
+        }
+
+        saveAlertsConfig();
+        resetAlertForm();
+    }
+
+    function describeAlertRule(a) {
+        const weekdaysFull = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+        if (a.tipo === 'dia_fixo') return `Todo dia ${a.dia} do mês`;
+        if (a.tipo === 'a_partir_dia') return `A partir do dia ${a.diaInicio} até ao fim do mês`;
+        if (a.tipo === 'ocorrencia_semana') {
+            const ocLabel = a.ocorrencia === -1 ? "última" : `${a.ocorrencia}ª`;
+            return `Na ${ocLabel} ${weekdaysFull[a.diaSemana]}-feira do mês`;
+        }
+        return "";
+    }
+
+    function renderAlertsManageList() {
+        const container = document.getElementById('alertsManageList');
+        if (!container) return;
+        if (dailyAlertsConfig.length === 0) {
+            container.innerHTML = `<p style="color:var(--text-muted); font-size:10pt; padding:10px;">Ainda não há alertas configurados.</p>`;
+            return;
+        }
+        container.innerHTML = dailyAlertsConfig.map(a => `
+            <div class="alert-manage-item">
+                <div>
+                    <div style="font-weight:700; color:var(--ryanair-blue-dark); font-size:10pt;">${a.titulo}</div>
+                    <div style="color:var(--text-muted); font-size:9pt; margin-top:2px;">${describeAlertRule(a)}</div>
+                </div>
+                <div class="alert-manage-item-actions">
+                    <button class="btn-action-task" style="color:var(--ryanair-blue);" onclick="editAlert('${a.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action-task" style="color:var(--danger);" onclick="deleteAlert('${a.id}')" title="Apagar"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function isNthWeekday(year, month, day, weekday, occurrence) {
+        let date = new Date(year, month, day);
+        if (date.getDay() !== weekday) return false;
+        if (occurrence === -1) {
+            let daysInMonth = new Date(year, month + 1, 0).getDate();
+            return (day + 7) > daysInMonth;
+        }
+        let firstOccurrenceDay = 1;
+        while (new Date(year, month, firstOccurrenceDay).getDay() !== weekday) { firstOccurrenceDay++; }
+        let nthDay = firstOccurrenceDay + (occurrence - 1) * 7;
+        return day === nthDay;
+    }
+
+    function evaluateAlertRule(rule, year, month, day) {
+        if (rule.tipo === 'dia_fixo') return day === rule.dia;
+        if (rule.tipo === 'a_partir_dia') return day >= rule.diaInicio;
+        if (rule.tipo === 'ocorrencia_semana') return isNthWeekday(year, month, day, rule.diaSemana, rule.ocorrencia);
+        return false;
+    }
+
+    const alertColorMap = {
+        azul: { border: "var(--ryanair-blue-light)", bg: "rgba(30, 86, 212, 0.06)", text: "var(--ryanair-blue-dark)" },
+        laranja: { border: "var(--warning-orange)", bg: "rgba(249, 115, 22, 0.06)", text: "var(--warning-orange)" },
+        vermelho: { border: "var(--danger)", bg: "rgba(239, 68, 68, 0.06)", text: "var(--danger)" }
+    };
 
     function checkDailyAlerts() {
         const mainCard = document.getElementById("dailyAlertMainCard");
@@ -609,36 +895,25 @@
 
         let dynamicHtml = "";
 
-        if (isSecondMonday(year, month, day)) {
-            dynamicHtml += `
-                <div class="daily-alert-box" style="background: rgba(30, 86, 212, 0.06); border-left: 5px solid var(--ryanair-blue-light);">
-                    <i class="fa-solid fa-plane-arrival" style="font-size: 20px; color: var(--ryanair-blue-dark); margin-top:2px;"></i>
-                    <div>
-                        <strong style="color: var(--ryanair-blue-dark); font-size:11pt;">Marcar Data da BASE VISIT</strong>
-                        <p style="margin-top: 4px; color: #1E293B;">Estamos perto do meio do mês. Por favor, procedam ao agendamento da Base Visit.</p>
+        dailyAlertsConfig.forEach(rule => {
+            if (evaluateAlertRule(rule, year, month, day)) {
+                let c = alertColorMap[rule.cor] || alertColorMap.azul;
+                dynamicHtml += `
+                    <div class="daily-alert-box" style="background: ${c.bg}; border-left: 5px solid ${c.border};">
+                        <i class="fa-solid ${rule.icone || 'fa-bell'}" style="font-size: 20px; color: ${c.text}; margin-top:2px;"></i>
+                        <div>
+                            <strong style="color: ${c.text}; font-size:11pt;">${rule.titulo}</strong>
+                            <p style="margin-top: 4px; color: #1E293B;">${rule.desc}</p>
+                        </div>
                     </div>
-                </div>
-            `;
-        }
-
-        if (day >= 25) {
-            dynamicHtml += `
-                <div class="daily-alert-box" style="background: rgba(239, 68, 68, 0.06); border-left: 5px solid var(--danger);">
-                    <i class="fa-solid fa-file-signature" style="font-size: 20px; color: var(--danger); margin-top:2px;"></i>
-                    <div>
-                        <strong style="color: var(--danger); font-size:11pt;">Execução do MONTHLY REPORT </strong>
-                        <p style="margin-top: 4px; color: #1E293B;">Atenção, já passámos do dia 25 (hoje é dia ${day}). É necessário realizar o Monthly Report antes de acabar o mês.</p>
-                    </div>
-                </div>
-            `;
-        }
+                `;
+            }
+        });
 
         if (dynamicHtml !== "") {
             container.innerHTML = dynamicHtml;
-            mainCard.style.display = "block";
         } else {
-            mainCard.style.display = "none";
-            container.innerHTML = "";
+            container.innerHTML = `<p style="color:var(--text-muted); font-size:10pt; padding: 4px 0;"><i class="fa-regular fa-face-smile"></i> Sem alertas relevantes para hoje.</p>`;
         }
     }
 
@@ -654,8 +929,10 @@
         const tbody = document.getElementById(`${type}TableBody`);
         tbody.innerHTML = "";
 
+        const isPunctual = type === 'punctual';
+
         if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma tarefa registada.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="${isPunctual ? 6 : 5}" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma tarefa registada.</td></tr>`;
             return;
         }
 
@@ -687,6 +964,12 @@
                 </select>
             `;
 
+            let qtyHTML = isPunctual ? `
+                <td>
+                    <input type="number" min="1" value="${task.quantidade || 1}" class="task-input" style="width: 60px; padding: 6px 8px; text-align:center;" onchange="changeQuantity('${type}', ${index}, this.value)">
+                </td>
+            ` : "";
+
             tr.innerHTML = `
                 <td>
                     <label class="checkbox-container">
@@ -695,6 +978,7 @@
                     </label>
                 </td>
                 <td><span class="${isDone ? 'task-text-completed' : 'task-text'}" style="${isPending ? 'color: var(--danger);' : ''}">${task.texto}</span></td>
+                ${qtyHTML}
                 <td>${responsavelSelect}</td>
                 <td>${timestampHTML}</td>
                 <td style="display: flex; gap: 8px;">
@@ -722,7 +1006,7 @@
         container.innerHTML = pendingsArray.map(p => `
             <div class="pending-item">
                 <div class="pending-header">
-                    <span>${p.texto}</span>
+                    <span>${p.texto}${p.quantidade && p.quantidade > 1 ? ` <span style="font-weight:600; color:var(--text-muted); font-size:9pt;">(x${p.quantidade})</span>` : ''}</span>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <button onclick="forceRemovePending('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12pt; transition: opacity 0.2s;" title="Remover Pendência" onmouseover="this.style.opacity=0.6" onmouseout="this.style.opacity=1">
@@ -779,6 +1063,151 @@
         if (!mixChartObj) return;
         mixChartObj.data.datasets[0].data = [routineCount, punctualCount];
         mixChartObj.update();
+    }
+
+    // --- 9. RELATÓRIO POR INTERVALO DE DATAS ---
+    function toggleReportDrawer(open) {
+        const overlay = document.getElementById('reportDrawerOverlay');
+        const drawer = document.getElementById('reportDrawer');
+        if (open) { overlay.classList.add('open'); drawer.classList.add('open'); }
+        else { overlay.classList.remove('open'); drawer.classList.remove('open'); }
+    }
+
+    function formatDateDisplay(dateStr) {
+        let [y, m, d] = dateStr.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    async function generateReport() {
+        let startStr = document.getElementById('reportStartDate').value;
+        let endStr = document.getElementById('reportEndDate').value;
+        const container = document.getElementById('reportResultsContainer');
+        document.getElementById('exportCsvBtn').style.display = 'none';
+
+        if (!startStr || !endStr) { alert("Seleciona a data de início e de fim."); return; }
+        if (startStr > endStr) { alert("A data de início tem de ser anterior ou igual à data de fim."); return; }
+
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:10pt; padding:10px;"><i class="fa-solid fa-spinner fa-spin"></i> A carregar dados...</p>`;
+
+        try {
+            const snapshot = await db.collection('daily_tasks')
+                .where(firebase.firestore.FieldPath.documentId(), '>=', startStr)
+                .where(firebase.firestore.FieldPath.documentId(), '<=', endStr)
+                .get();
+
+            let daysMap = {};
+            snapshot.forEach(doc => { daysMap[doc.id] = doc.data(); });
+
+            let allDates = [];
+            let cursor = new Date(startStr + 'T00:00:00');
+            let endDateObj = new Date(endStr + 'T00:00:00');
+            while (cursor <= endDateObj) {
+                allDates.push(formatDateKey(cursor));
+                cursor.setDate(cursor.getDate() + 1);
+            }
+
+            reportDataCache = [];
+
+            allDates.forEach(dateStr => {
+                let data = daysMap[dateStr] || { routine: [], punctual: [] };
+                let allTasks = [
+                    ...(data.routine || []).map(t => ({ ...t, tipo: 'Rotineira' })),
+                    ...(data.punctual || []).map(t => ({ ...t, tipo: 'Pontual' }))
+                ];
+                let concluidas = allTasks.filter(t => t.status === 'concluida');
+                let pendentes = allTasks.filter(t => t.status === 'pendente');
+                if (concluidas.length > 0 || pendentes.length > 0) {
+                    reportDataCache.push({ date: dateStr, concluidas, pendentes });
+                }
+            });
+
+            renderReportResults(reportDataCache);
+            if (reportDataCache.length > 0) document.getElementById('exportCsvBtn').style.display = 'flex';
+        } catch (err) {
+            console.error("Erro ao gerar relatório:", err);
+            container.innerHTML = `<p style="color:var(--danger); font-size:10pt; padding:10px;">Ocorreu um erro ao carregar o relatório.</p>`;
+        }
+    }
+
+    function renderReportResults(data) {
+        const container = document.getElementById('reportResultsContainer');
+
+        if (data.length === 0) {
+            container.innerHTML = `<p style="color:var(--text-muted); font-size:10pt; padding:10px;">Sem registos neste intervalo de datas.</p>`;
+            return;
+        }
+
+        let totalConcluidas = 0, totalPendentes = 0, totalQtd = 0;
+        data.forEach(d => {
+            totalConcluidas += d.concluidas.length;
+            totalPendentes += d.pendentes.length;
+            d.concluidas.forEach(t => { if (t.tipo === 'Pontual') totalQtd += (t.quantidade || 1); });
+        });
+
+        let summaryHtml = `
+            <div style="background:#F8FAFC; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:16px; font-size:9.5pt; color:var(--text-main); display:flex; justify-content:space-between; text-align:center;">
+                <span><strong style="color:var(--success); font-size:12pt; display:block;">${totalConcluidas}</strong>Concluídas</span>
+                <span><strong style="color:var(--danger); font-size:12pt; display:block;">${totalPendentes}</strong>Pendentes</span>
+                <span><strong style="color:var(--ryanair-blue); font-size:12pt; display:block;">${totalQtd}</strong>Unid. Pontuais</span>
+            </div>
+        `;
+
+        let daysHtml = data.map(d => {
+            let concluidasHtml = d.concluidas.length > 0 ? d.concluidas.map(t => `
+                <div style="padding:8px 10px; background: rgba(16,185,129,0.06); border-left:3px solid var(--success); border-radius:6px; margin-bottom:6px; font-size:9.5pt;">
+                    <div style="font-weight:600; color:var(--text-main);">${t.texto} <span style="font-weight:400; color:var(--text-muted); font-size:8.5pt;">(${t.tipo}${t.tipo === 'Pontual' ? ' · Qtd: ' + (t.quantidade || 1) : ''})</span></div>
+                    <div style="color:var(--text-muted); font-size:8.5pt; margin-top:2px;"><i class="fa-regular fa-clock"></i> ${t.timestamp || '—'} &nbsp; <i class="fa-regular fa-user"></i> ${t.responsavel}</div>
+                </div>
+            `).join('') : `<p style="color:var(--text-muted); font-size:9pt; padding: 2px 0 0 2px;">Sem tarefas concluídas.</p>`;
+
+            let pendentesHtml = d.pendentes.length > 0 ? d.pendentes.map(t => `
+                <div style="padding:8px 10px; background: rgba(239,68,68,0.06); border-left:3px solid var(--danger); border-radius:6px; margin-bottom:6px; font-size:9.5pt;">
+                    <div style="font-weight:600; color:var(--text-main);">${t.texto} <span style="font-weight:400; color:var(--text-muted); font-size:8.5pt;">(${t.tipo}${t.tipo === 'Pontual' ? ' · Qtd: ' + (t.quantidade || 1) : ''})</span></div>
+                    <div style="color:var(--danger); font-size:8.5pt; margin-top:2px; font-style:italic;">Motivo: ${t.motivo || 'Não especificado'}</div>
+                    <div style="color:var(--text-muted); font-size:8.5pt; margin-top:2px;"><i class="fa-regular fa-user"></i> ${t.responsavel}</div>
+                </div>
+            `).join('') : `<p style="color:var(--text-muted); font-size:9pt; padding: 2px 0 0 2px;">Sem pendentes.</p>`;
+
+            return `
+                <div style="margin-bottom:18px;">
+                    <div style="font-weight:700; color:var(--ryanair-blue-dark); font-size:10.5pt; border-bottom:2px solid var(--border-color); padding-bottom:6px; margin-bottom:8px;">
+                        ${formatDateDisplay(d.date)}
+                    </div>
+                    <div style="font-size:8.5pt; font-weight:700; color:var(--success); margin-bottom:4px;"><i class="fa-solid fa-check"></i> CONCLUÍDAS</div>
+                    ${concluidasHtml}
+                    <div style="font-size:8.5pt; font-weight:700; color:var(--danger); margin: 8px 0 4px;"><i class="fa-solid fa-triangle-exclamation"></i> PENDENTES</div>
+                    ${pendentesHtml}
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = summaryHtml + daysHtml;
+    }
+
+    function exportReportCsv() {
+        if (!reportDataCache || reportDataCache.length === 0) return;
+
+        let rows = [["Data", "Tipo", "Tarefa", "Estado", "Responsável", "Quantidade", "Hora / Motivo"]];
+
+        reportDataCache.forEach(d => {
+            d.concluidas.forEach(t => {
+                rows.push([formatDateDisplay(d.date), t.tipo, t.texto, "Concluída", t.responsavel, t.tipo === 'Pontual' ? (t.quantidade || 1) : "", t.timestamp || ""]);
+            });
+            d.pendentes.forEach(t => {
+                rows.push([formatDateDisplay(d.date), t.tipo, t.texto, "Pendente", t.responsavel, t.tipo === 'Pontual' ? (t.quantidade || 1) : "", t.motivo || ""]);
+            });
+        });
+
+        let csvContent = rows.map(r => r.map(field => `"${String(field).replace(/"/g, '""')}"`).join(';')).join('\n');
+        let blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio_tarefas_${document.getElementById('reportStartDate').value}_a_${document.getElementById('reportEndDate').value}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 </script>
 
