@@ -715,7 +715,7 @@
         const pendingsArray = Object.values(globalPendings);
 
         if (pendingsArray.length === 0) {
-            container.innerHTML = `<p style="color:var(--success); font-weight:600; padding:10px;"><i class="fa-solid fa-check-double"></i> Tudo limpo! Sem tarefas pendentes.</p>`;
+            container.innerHTML = `<p style="color:var(--success); font-weight:600; padding:10px;"><i class="fa-solid fa-check-double"></i> Tudo limpo! Sem tarefas encravadas.</p>`;
             return;
         }
 
@@ -723,15 +723,28 @@
             <div class="pending-item">
                 <div class="pending-header">
                     <span>${p.texto}</span>
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <button onclick="forceRemovePending('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12pt; transition: opacity 0.2s;" title="Remover Pendência" onmouseover="this.style.opacity=0.6" onmouseout="this.style.opacity=1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="pending-reason"><strong>Motivo:</strong> ${p.motivo}</div>
                 <div class="pending-meta">
-                    <span><i class="fa-regular fa-calendar"></i> Dia ${p.date.split('-').reverse().join('/')}</span>
+                    <span><i class="fa-regular fa-calendar"></i> Dia ${p.date ? p.date.split('-').reverse().join('/') : ''}</span>
                     <span><i class="fa-regular fa-user"></i> ${p.responsavel}</span>
                 </div>
             </div>
         `).join('');
+    }
+    // NOVA FUNÇÃO: Limpar pendentes diretamente do quadro
+    function forceRemovePending(taskId) {
+        if (confirm("Tens a certeza que queres remover este aviso do Quadro de Pendentes?")) {
+            // Se o ID for undefined (dados antigos/fantasma), o JS limpa-o à mesma
+            delete globalPendings[taskId]; 
+            db.collection('global_status').doc('pendings').set({ tasks: globalPendings });
+        }
     }
 
     function renderAlerts() {
